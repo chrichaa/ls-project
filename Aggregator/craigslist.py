@@ -27,9 +27,11 @@ def fetch_results(keyword,city,tmp_feed):
         entry = post.title.replace('&#x0024;','$') + ": " + post.link + "\n"
         tmp_feed.append(entry)
 
+    #Send results to database - TODO
+
 def get_nearby_cities(city):
-    #Hardcoding for now
-    url = 'newyork.craigslist.org'
+    #Hardcoding for now - TODO
+    url = city+'.craigslist.org'
 
     page = requests.get('http://'+url)
     tree = html.fromstring(page.text)
@@ -42,16 +44,7 @@ def get_nearby_cities(city):
     return cities
 
 def craigslist_scrape(city,item):
-#    print('/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\\')
-#    print('Welcome to python Craigslist scrapper')
-#    print('\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ \n')
-#
-#    item = raw_input('Please enter item keyword: ')
-#    item.replace(' ','%20')
-#    low_price = raw_input('Please enter lowest price: ')
-#    high_price = raw_input('Please enter highest price: ')
-#    city = "New York"
-
+    
     cities = get_nearby_cities(city)
     feed = []
     
@@ -67,7 +60,6 @@ def craigslist_scrape(city,item):
     for thread in tmp_threads:
         threads.append(thread)
 
-    # Wait for all threads to complete
     print 'Fetching Craigslist'
     for t in threads:
         sys.stdout.write(".")
@@ -76,9 +68,8 @@ def craigslist_scrape(city,item):
 
     print "Exiting Main Thread"
 
-    counter = 1
-    for entry in feed:
-        print str(counter) + ': ' + entry
-        counter = counter + 1
-
-#main()
+    print 'Found '+str(len(feed))+' results'
+#    counter = 1
+#    for entry in feed:
+#        print str(counter) + ': ' + entry
+#        counter = counter + 1
