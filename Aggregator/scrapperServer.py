@@ -5,65 +5,86 @@ import json
 import craigslist
 import ebay
 
-from thread import *
+import threading
+import time
+import inspect
 
-from Queue import Queue
-from heapq import heappush, heappop
+job_queue = []
+conn = None
 
+lock = threading.Lock()
+
+class Thread(threading.Thread):
+    def __init__(self, t, *args):
+        threading.Thread.__init__(self, target=t, args=args)
+        self.start()
 
 def check_queue():
     while True:
-        if((len(test) > 0) and (test[0][1] == 0)):
-            print test
-            test[0] = (test[0][0],15)
-            start_scraping(conn,test[0][0])
+        caller = inspect.getouterframes(inspect.currentframe())[1][3]
+        with lock:
+            if(len(job_queue) > 0):
+                if((job_queue[0]['timestamp'] == 0) or (((int(time.time()) - int(job_queue[0]['timestamp']))/60) == 2)):
+                    print job_queue
+                    tmp = job_queue.pop(0)
 
-            #Still have to handle queue - TODO
+                    start_scraping(conn,tmp)
 
-s = socket.socket()
-host = socket.gethostname()
-port = 12345
-s.bind((host, port))
-
-test = []
-
-start_new_thread(check_queue ,())
-
-s.listen(10)                
-print 'Socket is listening'
+                    tmp['timestamp'] = int(time.time())
+                    job_queue.append(tmp)
 
 def add_to_queue(conn):
     while True:
-        
-        #Receiving from client
-        data = conn.recv(1024)
+        data = conn[0].recv(1024)
         
         if not data:
             reply = 'Did not add to priority queue'
             break
         else:
             parsed_json = json.loads(data)
-            test.insert(0,(parsed_json,0))
-            reply = 'Added '+data+' to priority queue'
+            
+            caller = inspect.getouterframes(inspect.currentframe())[1][3]
+            print "Inside %s()" % caller
+            
+            with lock:
+                print "Acquiring lock"
+                job_queue.insert(0,parsed_json)
+                reply = 'Added '+data+' to priority queue'
 
-        conn.sendall(reply)
+        conn[0].sendall(reply)
 
-    conn.close()
+    conn[0].close()
 
 def start_scraping(conn,data):
-    print 'SCRAPPING! '
-    
-    craigslist.craigslist_scrape(data[0]['city'],data[0]['keyword'])
+    print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user']
+    craigslist.craigslist_scrape(data['city'],data['keyword'])
 
-while 1:
-    try:
-        conn, addr = s.accept()
-        print 'Connected with ' + addr[0] + ':' + str(addr[1])
+def serve():
+    print 'Running Server ....'
 
-        start_new_thread(add_to_queue ,(conn,))
+    s = socket.socket()
+    host = socket.gethostname()
+    port = 12344
+    s.bind((host, port))
 
-    except (KeyboardInterrupt, SystemExit):
-        s.close()
-        sys.exit()
+    job_queue = []
 
-s.close()
+    s.listen(10)
+
+    while 1:
+        print 'Socket is listening ....'
+        try:
+            conn, addr = s.accept()
+            print 'Connected with ' + addr[0] + ':' + str(addr[1])
+            
+            Thread(add_to_queue ,(conn,))
+        
+        except (KeyboardInterrupt, SystemExit):
+            s.close()
+            sys.exit()
+
+    s.close()
+
+if __name__ == '__main__':
+    Thread(check_queue)
+    Thread(serve)

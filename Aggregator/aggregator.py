@@ -10,7 +10,7 @@ def for_testing():
     city    = raw_input('Enter city: ')
     user    = raw_input('Enter user: ')
     
-    data = [ { 'keyword' : keyword, 'city' : city, 'user' : user} ]
+    data = { 'keyword' : keyword, 'city' : city, 'user' : user, 'timestamp' : 0}
     json = demjson.encode(data)
     
     send_request(json)
@@ -18,7 +18,7 @@ def for_testing():
 def send_request(json):
     s = socket.socket()         # Create a socket object
     host = socket.gethostname() # Get local machine name
-    port = 12345                # Reserve a port for your service.
+    port = 12344                # Reserve a port for your service.
 
     s.connect((host, port))
     s.send(json)
