@@ -24,7 +24,7 @@ def check_queue():
         caller = inspect.getouterframes(inspect.currentframe())[1][3]
         with lock:
             if(len(job_queue) > 0):
-                if((job_queue[0]['timestamp'] == 0) or (((int(time.time()) - int(job_queue[0]['timestamp']))/60) == 2)):
+                if((job_queue[0]['timestamp'] == 0) or (((int(time.time()) - int(job_queue[0]['timestamp']))/60) >= 2)):
                     print job_queue
                     tmp = job_queue.pop(0)
 

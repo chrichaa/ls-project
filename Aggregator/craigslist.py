@@ -3,6 +3,7 @@ import feedparser
 import requests
 import threading
 import demjson
+import json
 from lxml import html
 
 def fetch_results(keyword,city):
@@ -17,11 +18,12 @@ def fetch_results(keyword,city):
 
         title = tmp[0].replace(':','')
         url   = tmp[1]
-        key   = tmp[1].split('/')[3].replace('.html','')
         
-        print title + ' ' + url + ' ' + key
+        for letters in tmp[1].split('/'):
+            if '.html' in letters:
+                key = letters.replace('.html','')
 
-        dict[str(index)] = {'Title': title, 'Url': url, 'Key': key};
+        dict[str(index)] = {'Title': title.strip(), 'Url': url.strip(), 'Key': key.strip()};
         index = index + 1
 
     return dict
@@ -44,17 +46,14 @@ def craigslist_scrape(city,item):
     dict = {}
     cities = get_nearby_cities(city)
     
-    print cities
-    
     for x in range(len(cities)):
         tmp_dict = fetch_results(item,cities[x])
         dict[str(cities[x])] = tmp_dict
 
-    json = demjson.encode(dict)
+    jsonD = demjson.encode(dict)
+    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
     #Send results to database - TODO
-
-
-
 
 #    print 'Found '+str(len(feed))+' results'
 #    counter = 1

@@ -10,7 +10,7 @@ def for_testing():
     city    = raw_input('Enter city: ')
     user    = raw_input('Enter user: ')
     
-    data = { 'keyword' : keyword, 'city' : city, 'user' : user, 'timestamp' : 0}
+    data = { 'keyword' : keyword, 'city' : city, 'user' : user, 'timestamp' : 0 } 
     json = demjson.encode(data)
     
     send_request(json)
