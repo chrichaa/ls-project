@@ -51,7 +51,7 @@ def craigslist_scrape(city,item):
         dict[str(cities[x])] = tmp_dict
 
     jsonD = demjson.encode(dict)
-    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+#    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
     #Send results to database - TODO
 

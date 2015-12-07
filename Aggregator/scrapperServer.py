@@ -4,6 +4,7 @@ import json
 
 import craigslist
 import ebay
+import amazon
 
 import threading
 import time
@@ -57,7 +58,19 @@ def add_to_queue(conn):
 
 def start_scraping(conn,data):
     print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user']
+
+    begin = time.time()
+
+    print "Scrapping Craigslist ...."
     craigslist.craigslist_scrape(data['city'],data['keyword'])
+
+    print "Scrapping Amazon ...."
+    amazon.amazon_scrape(data['keyword'])
+
+    print "Scrapping eBay ...."
+    ebay.ebay_scrape(data['keyword'])
+
+    print ('Done! Took: %d Seconds')%(int(time.time()-begin))
 
 def serve():
     print 'Running Server ....'
