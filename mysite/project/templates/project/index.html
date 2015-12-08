@@ -11,11 +11,17 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
+    <!-- Google Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,300,100' rel='stylesheet' type='text/css'>
+
     <style>
+        .navbar-brand{
+            font-family: lato, sans-serif;
+        }
         label {
             font-size: 16px;
         }
-        .special:hover{
+        special.btn-primary:hover{
             color: #bfd1f3;
         }
         a{
@@ -37,7 +43,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" style="color: #4077dc;" href="#">GROUP3</a>
+            <a class="navbar-brand" style="color: #4077dc; letter-spacing: 1;" href="#">GROUP3</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -61,13 +67,13 @@
         <div class="col-md-6 col-md-offset-3">
             <div>
                 <h1>Add item to search</h1>
-                <form action="/ask" method="GET">
+                <form action="/add-search" method="GET">
                     <fieldset>
                         <div class="form-group">
                             <label for="term">Search Term:</label>
                             <input type="text" class="form-control input-default" id="term" name="term">
                         </div>
-                        <button type="submit" class="btn btn-primary special" style="border-color: #2053af; background: #4077dc;">Search</button>
+                        <button type="submit" class="btn btn-primary special" style="border-color: #193e81; background: #4077dc;">Search</button>
                     </fieldset>
                 </form>
             </div>
