@@ -1,5 +1,5 @@
 # ls-project
-## Large Scale Web Applications Final Project     
+Large Scale Web Applications Final Project     
    
 In ls-project, run the command source ./bin/activate for the virtualenv.     
 To run server, cd into ls-project/mysite and run python manage.py runserver.   
