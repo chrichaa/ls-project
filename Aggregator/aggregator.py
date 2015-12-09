@@ -5,11 +5,11 @@ import demjson
 def main():
     for_testing()
 
-def for_testing():
-    keyword = raw_input('Enter keyword: ')
-    city    = raw_input('Enter city: ')
-    user    = raw_input('Enter user: ')
-    
+def for_testing(keyword,city,user):
+#    keyword = raw_input('Enter keyword: ')
+#    city    = raw_input('Enter city: ')
+#    user    = raw_input('Enter user: ')
+
     data = { 'keyword' : keyword, 'city' : city, 'user' : user, 'timestamp' : 0 } 
     json = demjson.encode(data)
     
@@ -24,5 +24,7 @@ def send_request(json):
     s.send(json)
     print s.recv(1024)
     s.close                     # Close the socket when done
+
+
 
 main()
