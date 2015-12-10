@@ -6,8 +6,8 @@ import demjson
 import json
 from lxml import html
 
-def fetch_results(keyword,city):
-    xml = feedparser.parse('http://'+city+'/search/sss?format=rss&query='+keyword+'&sort=rel')
+def fetch_results(keyword,city,min_price,max_price):
+    xml = feedparser.parse('http://'+city+'/search/sss?format=rss?&min_price='+min_price+'&max_price='+max_price+'&query='+keyword+'&sort=rel')
     dict = {}
     index = 0
 
@@ -42,16 +42,21 @@ def get_nearby_cities(city):
 
     return cities
 
-def craigslist_scrape(city,item):
+def craigslist_scrape(user,city,item,min_price,max_price):
     dict = {}
     cities = get_nearby_cities(city)
     
+    num_of_items = 0
+        
     for x in range(len(cities)):
-        tmp_dict = fetch_results(item,cities[x])
+        tmp_dict = fetch_results(item,cities[x],min_price,max_price)
+        num_of_items = num_of_items + len(tmp_dict)
         dict[str(cities[x])] = tmp_dict
 
     jsonD = demjson.encode(dict)
 #    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
+    return num_of_items
 
     #Send results to database - TODO
 

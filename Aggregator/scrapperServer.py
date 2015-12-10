@@ -4,7 +4,7 @@ import json
 
 import craigslist
 import ebay
-import amazon
+#import amazon
 
 import threading
 import time
@@ -36,6 +36,32 @@ def check_queue():
                     tmp['timestamp'] = int(time.time())
                     job_queue.append(tmp)
 
+def start_scraping(conn,data):
+    print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user'] + ' Between $' + data['min_price'] + ' and $' + data['max_price']
+    #locationFile.write(data['city'])
+    begin = time.time()
+    
+    print "Scrapping Craigslist ...."
+    num_of_craigslist_results = craigslist.craigslist_scrape(data['user'],data['city'],data['keyword'],data['min_price'],data['max_price'])
+    print ("Craigslist Results: %d")%(num_of_craigslist_results)
+#    #resultFile.write( integer with number of results)
+
+# ///////////////// WARNING - AMAZON DOESNT WORK, DO NOT USE /////////////////
+#    print "Scrapping Amazon ...."
+#    num_of_amazon_results = amazon.amazon_scrape(data['user'],data['keyword'],data['min_price'],data['max_price'])
+#    print ("Amazon Results: %d")%(num_of_amazon_results)
+#    resultFile.write( integer with number of results)
+# ///////////////// WARNING - AMAZON DOESNT WORK, DO NOT USE /////////////////
+
+    print "Scrapping eBay ...."
+    num_of_ebay_results = ebay.ebay_scrape(data['user'],data['keyword'],data['min_price'],data['max_price'])
+    print ("eBay Results: %d")%(num_of_ebay_results)
+#    #resultFile.write( integer with number of results)
+
+    print ('Done! Took: %d Seconds')%(int(time.time()-begin))
+#timeFile.write('Done! Took: %d Seconds')%(int(time.time()-begin))
+#remove formatting for analysis
+
 def add_to_queue(conn):
     while True:
         data = conn[0].recv(1024)
@@ -58,33 +84,12 @@ def add_to_queue(conn):
 
     conn[0].close()
 
-def start_scraping(conn,data):
-    print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user']
-    #locationFile.write(data['city'])
-    begin = time.time()
-
-    print "Scrapping Craigslist ...."
-    craigslist.craigslist_scrape(data['city'],data['keyword'])
-    #resultFile.write( integer with number of results)
-
-    print "Scrapping Amazon ...."
-    amazon.amazon_scrape(data['keyword'])
-    #resultFile.write( integer with number of results)
-
-    print "Scrapping eBay ...."
-    ebay.ebay_scrape(data['keyword'])
-    #resultFile.write( integer with number of results)
-   
-    print ('Done! Took: %d Seconds')%(int(time.time()-begin))
-    #timeFile.write('Done! Took: %d Seconds')%(int(time.time()-begin))
-    #remove formatting for analysis
-
 def serve():
     print 'Running Server ....'
 
     s = socket.socket()
     host = socket.gethostname()
-    port = 12344
+    port = 12347
     s.bind((host, port))
 
     job_queue = []
