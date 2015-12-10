@@ -1,0 +1,15 @@
+.navbar-brand{
+    font-family: lato, sans-serif;
+}
+label {
+    font-size: 16px;
+}
+special.btn-primary:hover{
+    color: #bfd1f3;
+}
+a{
+    color: #4077dc;
+}
+a:hover{
+    color: #193e81;
+}

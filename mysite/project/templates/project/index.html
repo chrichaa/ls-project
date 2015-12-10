@@ -1,0 +1,98 @@
+<head>
+    {% load staticfiles %}
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'project/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'project/css/custom.css' %}" />
+    <!-- Google Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,300,100' rel='stylesheet' type='text/css'>
+
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" style="color: #4077dc; letter-spacing: 1;" href="#">GROUP3</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="username" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-default">Sign In</button>
+                </form>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 60px;">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div>
+                    <h1>Add item to search</h1>
+                    <form action="/add-search" method="GET">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="term">Search Term:</label>
+                                <input type="text" class="form-control input-default" id="term" name="term">
+                            </div>
+                            <button type="submit" class="btn btn-primary special" style="border-color: #193e81; background: #4077dc;">Search</button>
+                        </fieldset>
+                    </form>
+                </div>
+                <div>
+                    <h1>Items to watch</h1>
+                    <label for="searchlist">Your Current Items:</label>
+                    <select id="searchlist" name="searchlist" class="form-control input-default">
+                        <option value="macbook">Macbook</option>
+                        <option value="xbox">Xbox</option>
+                        <option value="adidas">Adidas</option>
+                        <option value="toaster">Toaster</option>
+                    </select>
+
+                    </br>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Price</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="https://www.google.com">Macbook 1</a></td>
+                                    <td>$600</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.google.com">Macbook 2</a></td>
+                                    <td>$550</td>
+                                </tr>
+                                <tr>
+                                    <td><a href="https://www.google.com">Macbook 3</a></td>
+                                    <td>$550</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery -->
+    <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static 'project/js/bootstrap.min.js' %}"></script>
+</body>
