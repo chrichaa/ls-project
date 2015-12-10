@@ -22,21 +22,21 @@
             </div>
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
-                    <h1>Log In</h1>
-                    <form action="{% url 'dashboard' %}" method="post" name="loginform" id="loginform" >
+                    <h1>Register</h1>
+                    <form action="{% url 'dashboard' %}" method="post" name="regform" id="regform">
                         {% csrf_token %}
                         <fieldset>
                             <div class="form-group">
-                                <input type="text" class="form-control" name="username" id="username" placeholder="Username" required>
+                                <input type="text" class="form-control" name="regun" id="regun" placeholder="Username" required>
                             </div>
                             <div class="form-group">
-                                <input type="text" class="form-control" name="password" id="password" placeholder="Password" required>
+                                <input type="text" class="form-control" name="regpw" id="regpw" placeholder="Password" required>
                             </div>
-                            <button type="submit" class="btn btn-primary pull-right" name="loginbutton" id="loginbutton">Log In</button>
+                            <button type="submit" class="btn btn-primary pull-right" name="regbutton" id="regbutton">Register</button>
                         </fieldset>
                     </form>
                 </div>
-                <a href="register" class="btn btn-default" name="goreg" id="goreg">Register for an account!</a>
+                <a href="/project" class="btn btn-default" name="gohome" id="gohome">Log in to an existing account!</a>
             </div>
         </div>
     </div>

@@ -13,3 +13,16 @@ a{
 a:hover{
     color: #193e81;
 }
+
+.btn-primary{
+    border-color: #193e81;
+    background: #4077dc;
+}
+
+.btn-primary:hover{
+    background: #2153ac;
+}
+
+.panel {
+    padding: 20px;
+}

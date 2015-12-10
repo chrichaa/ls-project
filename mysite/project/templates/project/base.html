@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>{% block title %}Group 3{% endblock %}</title>
+        {% load staticfiles %}
+        <!-- Bootstrap Core CSS -->
+        <link rel="stylesheet" type="text/css" href="{% static 'project/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'project/css/bootstrap-theme.min.css' %}" />
+        <link rel="stylesheet" type="text/css" href="{% static 'project/css/custom.css' %}" />
+        <!-- Google Fonts -->
+        <link href='https://fonts.googleapis.com/css?family=Lato:400,300,100' rel='stylesheet' type='text/css'>
+    </head>
+
+    <body>
+         {% block body_block %}{% endblock %}
+        <!-- jQuery -->
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+        <!-- Bootstrap Core JavaScript -->
+        <script src="{% static 'project/js/bootstrap.min.js' %}"></script>
+    </body>
+</html>
