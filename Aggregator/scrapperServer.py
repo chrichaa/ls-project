@@ -10,6 +10,8 @@ import threading
 import time
 import inspect
 
+from sys import argv
+
 job_queue = []
 conn = None
 
@@ -58,19 +60,24 @@ def add_to_queue(conn):
 
 def start_scraping(conn,data):
     print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user']
-
+    #locationFile.write(data['city'])
     begin = time.time()
 
     print "Scrapping Craigslist ...."
     craigslist.craigslist_scrape(data['city'],data['keyword'])
+    #resultFile.write( integer with number of results)
 
     print "Scrapping Amazon ...."
     amazon.amazon_scrape(data['keyword'])
+    #resultFile.write( integer with number of results)
 
     print "Scrapping eBay ...."
     ebay.ebay_scrape(data['keyword'])
-
+    #resultFile.write( integer with number of results)
+   
     print ('Done! Took: %d Seconds')%(int(time.time()-begin))
+    #timeFile.write('Done! Took: %d Seconds')%(int(time.time()-begin))
+    #remove formatting for analysis
 
 def serve():
     print 'Running Server ....'
@@ -99,5 +106,9 @@ def serve():
     s.close()
 
 if __name__ == '__main__':
+    #timeFile = open(timestat.txt, 'w')
+    #locationFile = open(locationstat.txt, 'w')
+    #keywordFile= open(keywordFile.txt, 'w')
+    #resultFile= open(resultFile.txt, 'w')
     Thread(check_queue)
     Thread(serve)
