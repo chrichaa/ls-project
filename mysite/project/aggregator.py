@@ -14,8 +14,9 @@ def scrape_data(keyword,max_price,min_price,city,user):
 
     data = { 'keyword' : keyword, 'max_price' : max_price, 'min_price' : min_price, 'city' : city, 'user' : user, 'timestamp' : 0 }
     json = demjson.encode(data)
-    
-    send_request(json)
+
+    if ((keyword != 'None') and (max_price != '0') and (min_price != '0')):    
+        send_request(json)
 
 def send_request(json):
     s = socket.socket()         # Create a socket object
