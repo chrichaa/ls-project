@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 def splitter(c):
     cities_dict={}
@@ -13,9 +14,12 @@ def main():
         content = f.readlines()
 	
     dictionary = splitter(content)
-    inv_map = {v: k for k, v in dictionary.items()} 
+    dic = {v: k for k, v in dictionary.items()}
                     
-    print json.dumps(inv_map, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+    tmp = json.dumps(dictionary, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
+    for key,value in sorted(dic.items()):
+       print "('" + key + "' , '" + value + "'),"
 
 if __name__ == "__main__":
     main()
