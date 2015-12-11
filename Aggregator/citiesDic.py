@@ -5,7 +5,7 @@ def splitter(c):
 
     for x in range(len(c)):
         temp = c[x].split("/\">")
-        cities_dict[temp[0]] = temp[1]
+        cities_dict[temp[0]] = temp[1].replace('</a>','').replace('<b>','').replace('</b>','').strip()
     return cities_dict
 
 def main():
@@ -13,8 +13,9 @@ def main():
         content = f.readlines()
 	
     dictionary = splitter(content)
+    inv_map = {v: k for k, v in dictionary.items()} 
                     
-    print json.dumps(dictionary, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+    print json.dumps(inv_map, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
 if __name__ == "__main__":
     main()
