@@ -2,17 +2,17 @@
 import socket
 import demjson
 
-def main():
-    for_testing()
+#def main():
+#    for_testing()
 
-def for_testing():
-    keyword   = raw_input('Enter keyword: ')
-    max_price = raw_input('Enter maxprice: ')
-    min_price = raw_input('Enter minprice: ')
-    city      = raw_input('Enter city: ')
-    user      = raw_input('Enter user: ')
+def scrape_data(keyword,max_price,min_price,city,user):
+#    keyword   = raw_input('Enter keyword: ')
+#    max_price = raw_input('Enter maxprice: ')
+#    min_price = raw_input('Enter minprice: ')
+#    city      = raw_input('Enter city: ')
+#    user      = raw_input('Enter user: ')
 
-    data = { 'keyword' : keyword.replace(' ','%20'), 'max_price' : max_price, 'min_price' : min_price, 'city' : city, 'user' : user, 'timestamp' : 0 }
+    data = { 'keyword' : keyword, 'max_price' : max_price, 'min_price' : min_price, 'city' : city, 'user' : user, 'timestamp' : 0 }
     json = demjson.encode(data)
     
     send_request(json)
@@ -29,4 +29,4 @@ def send_request(json):
 
 
 
-main()
+#main()
