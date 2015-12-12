@@ -3,14 +3,12 @@ from djangotoolbox.fields import ListField
 from djangotoolbox.fields import EmbeddedModelField
 
 # Create your models here.
-class Users(models.Model):
-	name     = models.CharField(max_length = 255)
-	email    = models.EmailField()
-	searches = ListField(EmbeddedModelField('Search'))
-
-class Search(models.Model):
-        craigslist = ListField(EmbeddedModelField('Craigslist_Search'))
+class User(models.Model):
+	name       = models.CharField(max_length = 255)
+	email      = models.EmailField()
+        password   = models.CharField(max_length = 255) 
         ebay       = ListField(EmbeddedModelField('Ebay_Search'))
+	craigslist = ListField(EmbeddedModelField('Craigslist_Search'))
 
 class Craigslist_Search(models.Model):
 	keyword   = models.CharField(max_length = 255)
