@@ -59,12 +59,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django_mongodb_engine', 
-        'NAME': 'largescale',                      
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '27017',                      
-	'SUPPORTS_TRANSACTIONS': False
+        'NAME': 'largescale'
     }
 }
 
