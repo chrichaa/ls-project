@@ -29,4 +29,5 @@ def scrape_data(request):
     aggregator.scrape_data(keyword,max_price,min_price,city,user)
 
     #Think this has to be changed
-    return render(request, 'project/dashboard.html')
+    context = {}
+    return render(request, 'project/dashboard.html', context)
