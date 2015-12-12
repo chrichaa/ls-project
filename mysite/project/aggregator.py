@@ -21,7 +21,7 @@ def scrape_data(keyword,max_price,min_price,city,user):
 def send_request(json):
     s = socket.socket()         # Create a socket object
     host = socket.gethostname() # Get local machine name
-    port = 12348                # Reserve a port for your service.
+    port = 12350                # Reserve a port for your service.
 
     s.connect((host, port))
     s.send(json)

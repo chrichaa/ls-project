@@ -1,9 +1,12 @@
 import ebaysdk
-import demjson
 import json
 import re
+import os
 
-from pymongo import MongoClient
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+
+from project.models import Users,Ebay_Search,Item
+from decimal import *
 from ebaysdk.exception import ConnectionError
 from ebaysdk.finding import Connection as Finding
 
@@ -26,8 +29,7 @@ def fetch_results(user,item,min_price,max_price):
 
                     temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'key': item_id.strip()};
                     count = count + 1
-
-            jsond = demjson.encode(temp_dictionary)
+                   
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))
         
             send_to_database(user,item,min_price,max_price,temp_dictionary)
@@ -41,19 +43,21 @@ def fetch_results(user,item,min_price,max_price):
         return 0 
 
 def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keyword,dict):
-    client = MongoClient('localhost', 27017)
-    db = client.largescale
-
     items_list = []
+    min_price_keyword  = "{:.2f}".format(float(min_price_keyword))
+    max_price_keyword  = "{:.2f}".format(float(max_price_keyword))
+
     for item_key in dict:
-        item = {'title' : dict[item_key]['title'], 'url' : dict[item_key]['url'], 'price' : dict[item_key]['price'], 'key' : dict[item_key]['key']}
-        db_item = db.Item.insert_one(item).inserted_id
-        items_list.append(db_item)
+        i = Item.objects.create(title = dict[item_key]['title'], url = dict[item_key]['url'], price = "{:.2f}".format(float(dict[item_key]['price'])), key = dict[item_key]['key'])
+        i.save()
+        items_list.append(i)
     
     if(len(items_list) > 0):
-        search = {'keyword' : item_keyword, 'min_price' : min_price_keyword, 'max_price' : max_price_keyword, 'items' : items_list}
-        db_search = db.Ebay_Search.insert_one(search).inserted_id
+        s = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, items = items_list)
+        s.save()
         print 'Inserted Ebay Search!'
+
+    #STILL HAVE TO DO USER
 
 def ebay_scrape(user,item,min_price,max_price):
     return fetch_results(user,item,min_price,max_price)

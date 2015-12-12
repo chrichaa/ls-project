@@ -89,7 +89,7 @@ def serve():
 
     s = socket.socket()
     host = socket.gethostname()
-    port = 12348
+    port = 12350
     s.bind((host, port))
 
     job_queue = []
