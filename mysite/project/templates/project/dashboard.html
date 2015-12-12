@@ -27,22 +27,29 @@
                     <h1>Add item to search</h1>
                     <form action="scrape_data" method="GET">
                         <fieldset>
-                            <div class="form-group col-xs-6 col-sm-4" style="padding-left: 0px;">
+                            <div class="form-group col-xs-12 col-md-8" style="padding-left: 0px;">
                                 <label for="term">Search Term:</label>
                                 <input type="text" class="form-control input-default" id="term" name="term">
                             </div>
-                            <div class="form-group col-xs-6 col-sm-4" style="padding-left: 0px;">
-                                <label for="maxprice">Max Price:</label>
-                                <input type="number" class="form-control input-default" id="maxprice" name="maxprice">
-                            </div>
-                            <div class="form-group col-xs-6 col-sm-4" style="padding-left: 0px;">
-                                <label for="city">City:</label>
-                                <input type="text" class="form-control input-default" id="city" name="city">
+                            <div class="form-group col-xs-4" style="padding-left: 0px;">
+                              <label for="citydrop">City: </label>
+                              <select class="form-control" id="citydrop" name="citydrop">
+                              </select>
                             </div>
                         </fieldset>
-                        <div>
-                            <button type="submit" class="btn btn-primary special">Search</button>
-                        </div>
+                        <fieldset>
+                            <div class="form-group col-xs-6 col-sm-4" style="padding-left: 0px;">
+                                <label for="minprice">Min Price:</label>
+                                <input type="number" class="form-control input-default" id="minprice" name="minprice" min="0">
+                            </div>
+                            <div class="form-group col-xs-6 col-sm-4" style="padding-left: 0px;">
+                                <label for="maxprice">Max Price:</label>
+                                <input type="number" class="form-control input-default" id="maxprice" name="maxprice" min="0">
+                            </div>
+                            <div style="padding-top: 25px;">
+                                <button type="submit" class="btn btn-primary special" id="searchbutton" name="searchbutton">Search</button>
+                            </div>
+                        </fieldset>
                     </form>
                 </div>
                 <div>
