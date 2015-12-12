@@ -8,6 +8,10 @@ class Users(models.Model):
 	email    = models.EmailField()
 	searches = ListField(EmbeddedModelField('Search'))
 
+class Search(models.Model):
+        craigslist = ListField(EmbeddedModelField('Craigslist_Search'))
+        ebay       = ListField(EmbeddedModelField('Ebay_Search'))
+
 class Craigslist_Search(models.Model):
 	keyword   = models.CharField(max_length = 255)
 	city      = models.CharField(max_length = 255)
