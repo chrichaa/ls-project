@@ -4,15 +4,15 @@ from djangotoolbox.fields import EmbeddedModelField
 
 # Create your models here.
 class Users(models.Model):
-	name              = models.CharField(max_length = 255)
-	email             = models.EmailField()
+    name              = models.CharField(max_length = 255)
+    email             = models.EmailField()
     password          = models.CharField(max_length = 255)
     ebay_search       = ListField(EmbeddedModelField('Ebay_Search'))
- 	craigslist_search = ListField(EmbeddedModelField('Craigslist_Search'))
+    craigslist_search = ListField(EmbeddedModelField('Craigslist_Search'))
 
 class Craigslist_Search(models.Model):
-	keyword      = models.CharField(max_length = 255)
-	city         = models.CharField(max_length = 255)
+    keyword      = models.CharField(max_length = 255)
+    city         = models.CharField(max_length = 255)
     near_cities  = ListField()
     min_price    = models.IntegerField()
     max_price    = models.IntegerField()

@@ -23,7 +23,7 @@
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
                     <h1>Register</h1>
-                    <form action="{% url 'dashboard' %}" method="post" name="regform" id="regform">
+                    <form action="register_user" method="post" name="regform" id="regform">
                         {% csrf_token %}
                         <fieldset>
                             <div class="form-group">
