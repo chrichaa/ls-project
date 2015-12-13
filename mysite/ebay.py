@@ -9,6 +9,7 @@ from project.models import Users,Ebay_Search,Item
 from decimal import *
 from ebaysdk.exception import ConnectionError
 from ebaysdk.finding import Connection as Finding
+from django.utils import timezone
 
 def fetch_results(user,item,min_price,max_price):
     try:
@@ -44,16 +45,23 @@ def fetch_results(user,item,min_price,max_price):
 
 def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keyword,dict):
     items_list = []
-    min_price_keyword  = "{:.2f}".format(float(min_price_keyword))
-    max_price_keyword  = "{:.2f}".format(float(max_price_keyword))
+    min_price_keyword  = int(min_price_keyword)
+    max_price_keyword  = int(max_price_keyword)
 
     for item_key in dict:
-        i = Item.objects.create(title = dict[item_key]['title'], url = dict[item_key]['url'], price = "{:.2f}".format(float(dict[item_key]['price'])), key = dict[item_key]['key'])
-        i.save()
+        try:
+            i = Item.objects.get(key = dict[item_key]['key'])
+        except Item.DoesNotExist:
+            i = Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = timezone.now())
+            i.save()
         items_list.append(i)
     
     if(len(items_list) > 0):
-        s = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, items = items_list)
+        try:
+            s = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
+            s.items.extend(items_list)
+        except Ebay_Search.DoesNotExist:
+            s = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, items = items_list)
         s.save()
         print 'Inserted Ebay Search!'
 

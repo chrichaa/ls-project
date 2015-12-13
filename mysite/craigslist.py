@@ -11,6 +11,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 from lxml import html
 from decimal import *
 from project.models import Users,Craigslist_Search,Item
+from django.utils import timezone
 
 def fetch_results(keyword,city,min_price,max_price):
     xml = feedparser.parse('http://'+city+'/search/sss?format=rss?&min_price='+min_price+'&max_price='+max_price+'&query='+keyword.replace(' ','%20')+'&sort=rel')
@@ -45,7 +46,7 @@ def fetch_results(keyword,city,min_price,max_price):
 
 def get_nearby_cities(city):
     #Hardcoding for now - TODO
-    url = city+'.craigslist.org'
+    url = city
 
     page = requests.get('http://'+url)
     tree = html.fromstring(page.text)
@@ -68,20 +69,28 @@ def craigslist_scrape(user,city,keyword_item,min_price,max_price):
         dict[str(cities[x])] = tmp_dict
 
     items_list = []
-    min_price = "{:.2f}".format(float(min_price))
-    max_price = "{:.2f}".format(float(max_price))
+    min_price = int(min_price)
+    max_price = int(max_price)
 
     for city_key in dict:
         for item_key in dict[city_key]:
-            i = Item.objects.create(title = dict[city_key][item_key]['title'], url = dict[city_key][item_key]['url'], price = "{:.2f}".format(float(dict[city_key][item_key]['price'])), key = dict[city_key][item_key]['key']) 
-            i.save()
+            try:
+                i = Item.objects.get(key = dict[city_key][item_key]['key'])
+                print 'Cached'
+            except Item.DoesNotExist:
+                i = Item.objects.create(title = dict[city_key][item_key]['title'], keyword = keyword_item, url = dict[city_key][item_key]['url'], price = int(float(dict[city_key][item_key]['price'])), key = dict[city_key][item_key]['key'], time_created = timezone.now())
+                i.save()
             items_list.append(i)
         if(len(items_list) > 0):
-            s = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, min_price = min_price, max_price = max_price, items = items_list)
+            try:
+                s = Craigslist_Search.objects.get(keyword = keyword_item, city = city_key, min_price = min_price, max_price = max_price)
+                s.items.extend(items_list)
+            except Craigslist_Search.DoesNotExist:
+                s = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, items = items_list)
             s.save()
             print 'Inserted Craigslist Search!'
         items_list = []
-            
+
 #    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
     return num_of_items

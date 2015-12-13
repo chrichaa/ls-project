@@ -11,21 +11,23 @@ class Users(models.Model):
  	craigslist_search = ListField(EmbeddedModelField('Craigslist_Search'))
 
 class Craigslist_Search(models.Model):
-	keyword   = models.CharField(max_length = 255)
-	city      = models.CharField(max_length = 255)
-        min_price = models.CharField(max_length = 255)
-        max_price = models.CharField(max_length = 255)
-        items     = ListField(EmbeddedModelField('Item'))
+	keyword     = models.CharField(max_length = 255)
+	city        = models.CharField(max_length = 255)
+        near_cities = ListField() 
+        min_price   = models.IntegerField()
+        max_price   = models.IntegerField()
+        items       = ListField(EmbeddedModelField('Item'))
 
 class Ebay_Search(models.Model):
         keyword   = models.CharField(max_length = 255)
-        min_price = models.CharField(max_length = 255)
-        max_price = models.CharField(max_length = 255)
+        min_price = models.IntegerField()
+        max_price = models.IntegerField()
         items     = ListField(EmbeddedModelField('Item'))
 
 class Item(models.Model):
 	title        = models.CharField(max_length = 255)
+        keyword      = models.CharField(max_length = 255)
         url          = models.CharField(max_length = 255)
-        price        = models.CharField(max_length = 255)
+        price        = models.IntegerField()
         key          = models.CharField(max_length = 255) 
 	time_created = models.DateTimeField(auto_now_add=True)
