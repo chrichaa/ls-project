@@ -5,6 +5,10 @@ function populateList(){
     }
 }
 
+function updateItemsList(){
+
+}
+
 $(document).ready(function(){
     populateList();
 });
