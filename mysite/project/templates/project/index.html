@@ -23,7 +23,7 @@
             <div class="col-md-4 col-md-offset-4">
                 <div class="panel panel-default">
                     <h1>Log In</h1>
-                    <form action="{% url 'dashboard' %}" method="post" name="loginform" id="loginform" >
+                    <form action="login_user" method="post" name="loginform" id="loginform" >
                         {% csrf_token %}
                         <fieldset>
                             <div class="form-group">

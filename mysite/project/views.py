@@ -1,22 +1,61 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from pymongo import MongoClient
+from models import *
+
 import aggregator
 
 def index(request):
     return render(request, 'project/index.html')
 
 def register(request):
+    if request.method == 'POST':
+        success = register_user(request)
+        if success == True:
+            return render(request,'project/dashboard.html')
+        else:
+            #Someone has to make the HTML to handle incorrect login
+            print 'Handle if user is registered already' 
+
     return render(request, 'project/register.html')
 
 def dashboard(request):
-    client = MongoClient('localhost', 27017)
-    db = client.largescale
-
     #Get current user's searches and fetch results from mongo tables
     #Refresh HTML table with results 
-
+   
     return render(request, 'project/dashboard.html')
+
+def register_user(request):
+    email    = request.POST['regemail'].strip()
+    username = request.POST['regun'].strip()
+    password = request.POST['regun'].strip()
+   
+    try:
+        user = Users.objects.get(email = email,  password = password)
+        print 'User Already Registered'
+        
+        return False
+    
+    except Users.DoesNotExist:
+        new_user = Users.objects.create(name = username, email = email, password = password, ebay_search = [], craigslist_search = [])
+        new_user.save()
+        print 'New User Added!'
+
+        return True
+
+def login_user(request):
+    email    = str(request.POST['email'].strip())
+    username = str(request.POST['username'].strip())
+    password = str(request.POST['password'].strip())
+
+    try:
+        user = Users.objects.get(email = email, name = username, password = password)
+        print 'User Logged in'
+        return render(request, 'project/dashboard.html')
+
+    except Users.DoesNotExist:
+        print 'Incorrect login'
+        #Someone has to make the HTML to handle incorrect login
+        return render(request,'project/login_error.html')
 
 def scrape_data(request):
     if request.GET['term']:
@@ -35,13 +74,33 @@ def scrape_data(request):
         min_price = request.GET['minprice']
     else:
         min_price = '0'
-    print request.GET['citydrop']
+   
+    print 'CITY DROPDOWN: ' + request.GET['citydrop']
 
-    city      = 'newyork'
-    user      = 'tmp_user'
+    city = 'newyork.craigslist.org'
+    user = 'tmp_user'
 
-    aggregator.scrape_data(keyword,max_price,min_price,city,user)
+    #Rough Cache - Not too good, needs work 
+    try:
+        print 'Checking Cache'
+        search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
+        search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
+        
+        #NOT SHOWING ALL ITEMS - TODO
+        
+        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
+            print "CRAIGSLIST: " + c_item.title + " PRICE: " + str(c_item.price)
+
+        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
+            print "EBAY: " + e_item.title + " PRICE: " + str(e_item.price)
+
+    #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
+    except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
+        print 'Multiple Objects Returned'
+       
+    except (Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
+        print 'Cache Miss: Scrapping'
+        aggregator.scrape_data(keyword,max_price,min_price,city,user)
 
     #Think this has to be changed
-    context = {}
-    return render(request, 'project/dashboard.html', context)
+    return render(request, 'project/dashboard.html')
