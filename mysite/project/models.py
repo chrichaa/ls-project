@@ -6,28 +6,35 @@ from djangotoolbox.fields import EmbeddedModelField
 class Users(models.Model):
 	name              = models.CharField(max_length = 255)
 	email             = models.EmailField()
-        password          = models.CharField(max_length = 255) 
-        ebay_search       = ListField(EmbeddedModelField('Ebay_Search'))
+    password          = models.CharField(max_length = 255)
+    ebay_search       = ListField(EmbeddedModelField('Ebay_Search'))
  	craigslist_search = ListField(EmbeddedModelField('Craigslist_Search'))
 
 class Craigslist_Search(models.Model):
-	keyword     = models.CharField(max_length = 255)
-	city        = models.CharField(max_length = 255)
-        near_cities = ListField() 
-        min_price   = models.IntegerField()
-        max_price   = models.IntegerField()
-        items       = ListField(EmbeddedModelField('Item'))
+	keyword      = models.CharField(max_length = 255)
+	city         = models.CharField(max_length = 255)
+    near_cities  = ListField()
+    min_price    = models.IntegerField()
+    max_price    = models.IntegerField()
 
 class Ebay_Search(models.Model):
-        keyword   = models.CharField(max_length = 255)
-        min_price = models.IntegerField()
-        max_price = models.IntegerField()
-        items     = ListField(EmbeddedModelField('Item'))
+    keyword      = models.CharField(max_length = 255)
+    min_price    = models.IntegerField()
+    max_price    = models.IntegerField()
 
-class Item(models.Model):
-	title        = models.CharField(max_length = 255)
-        keyword      = models.CharField(max_length = 255)
-        url          = models.CharField(max_length = 255)
-        price        = models.IntegerField()
-        key          = models.CharField(max_length = 255) 
-	time_created = models.DateTimeField(auto_now_add=True)
+class Ebay_Item(models.Model):
+    title        = models.CharField(max_length = 255)
+    keyword      = models.CharField(max_length = 255)
+    url          = models.CharField(max_length = 255)
+    price        = models.IntegerField()
+    key          = models.CharField(max_length = 255)
+    time_created = models.DateTimeField(auto_now_add=True)
+
+class Craigslist_Item(models.Model):
+    title        = models.CharField(max_length = 255)
+    keyword      = models.CharField(max_length = 255)
+    url          = models.CharField(max_length = 255)
+    price        = models.IntegerField()
+    key          = models.CharField(max_length = 255)
+    city         = models.CharField(max_length = 255)
+    time_created = models.DateTimeField(auto_now_add=True)
