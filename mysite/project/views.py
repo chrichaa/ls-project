@@ -9,17 +9,22 @@ def index(request):
 
 def register(request):
     if request.method == 'POST':
-        register_user(request)
+        success = register_user(request)
+        if success == True:
+            return render(request,'project/dashboard.html')
+        else:
+            #Someone has to make the HTML to handle incorrect login
+            print 'Handle if user is registered already' 
+
     return render(request, 'project/register.html')
 
 def dashboard(request):
     #Get current user's searches and fetch results from mongo tables
     #Refresh HTML table with results 
-
+   
     return render(request, 'project/dashboard.html')
 
 def register_user(request):
-    print 'here'
     email    = request.POST['regemail'].strip()
     username = request.POST['regun'].strip()
     password = request.POST['regun'].strip()
@@ -27,22 +32,20 @@ def register_user(request):
     try:
         user = Users.objects.get(email = email,  password = password)
         print 'User Already Registered'
-        #Someone has to make the HTML to handle incorrect login
-        return render(request,'project/login_error.html')
+        
+        return False
     
     except Users.DoesNotExist:
         new_user = Users.objects.create(name = username, email = email, password = password, ebay_search = [], craigslist_search = [])
         new_user.save()
         print 'New User Added!'
 
-        return render(request,'project/dashboard.html')
+        return True
 
 def login_user(request):
     email    = str(request.POST['email'].strip())
     username = str(request.POST['username'].strip())
     password = str(request.POST['password'].strip())
-
-    print "LOGIN: " + email + " USERNAME: " + username + " PASSWORD: " + password
 
     try:
         user = Users.objects.get(email = email, name = username, password = password)
@@ -71,27 +74,32 @@ def scrape_data(request):
         min_price = request.GET['minprice']
     else:
         min_price = '0'
-    print request.GET['citydrop']
+   
+    print 'CITY DROPDOWN: ' + request.GET['citydrop']
 
     city = 'newyork.craigslist.org'
     user = 'tmp_user'
 
     #Rough Cache - Not too good, needs work 
     try:
-        search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
+        print 'Checking Cache'
+        search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
+        search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
         
-        for c_item in Craigslist_Item.objects.filter(keyword = keyword, city__in = search.near_cities, price__range = (int(min_price), int(max_price))):
-            print "CRAIGSLIST: " + c_item.title + " PRICE: " + c_item.price
+        #NOT SHOWING ALL ITEMS - TODO
+        
+        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
+            print "CRAIGSLIST: " + c_item.title + " PRICE: " + str(c_item.price)
 
-        for e_item in Ebay_Item.objects.filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-            print "EBAY: " + e_item.title + " PRICE: " + e_item.price
+        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
+            print "EBAY: " + e_item.title + " PRICE: " + str(e_item.price)
 
     #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
-    except Craigslist_Search.MultipleObjectsReturned:
+    except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
         print 'Multiple Objects Returned'
-#        for search in Craigslist_Search.objects.filter(keyword = keyword, city = city, min_price__lte = int(min_price),max_price__gte = int(max_price)):
-#            print search        
-    except Craigslist_Search.DoesNotExist:
+       
+    except (Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
+        print 'Cache Miss: Scrapping'
         aggregator.scrape_data(keyword,max_price,min_price,city,user)
 
     #Think this has to be changed

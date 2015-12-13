@@ -18,7 +18,7 @@ def fetch_results(user,item,min_price,max_price):
         dictionary = response.dict()
 
         if 'item' in dictionary['searchResult']:
-            count = 1
+            count = 0
             temp_dictionary = {}
             
             for key in dictionary['searchResult']['item']:
@@ -26,6 +26,9 @@ def fetch_results(user,item,min_price,max_price):
                     title   = key['title']
                     url     = key['viewItemURL']
                     price   = key['sellingStatus']['currentPrice']['value']
+                    
+                    if not price:
+                        price = "0"
 
                     temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'key': item_id.strip()};
                     count = count + 1
@@ -46,14 +49,31 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
 
     min_price_keyword  = int(min_price_keyword)
     max_price_keyword  = int(max_price_keyword)
+    
+    num_cached = 0
+    num_added  = 0 
+
+    num_searches_cached = 0
+    num_searches_added  = 0 
 
     for item_key in dict:
         try:
             i = Ebay_Item.objects.get(key = dict[item_key]['key'])
+            num_cached = num_cached + 1
         except Ebay_Item.DoesNotExist:
             i = Ebay_Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = timezone.now())
-            i.save()
+            num_added = num_added + 1
+            i.insert_one()
 
+    try:
+        e_search = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
+        num_searches_cached = num_searches_cached + 1
+    except Ebay_Search.DoesNotExist:
+        e_search = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
+        num_searches_added = num_searches_added + 1
+
+    print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
+    print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
 # /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
 # //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
 #    if(len(items_list) > 0):
