@@ -38,20 +38,11 @@ def dashboard(request):
 def register_user(request):
     email    = request.POST['regemail'].strip()
     username = request.POST['regun'].strip()
-<<<<<<< HEAD
-    password = request.POST['regun'].strip()
-
-    try:
-        user = Users.objects.get(email = email,  password = password)
-        print 'User Already Registered'
-
-=======
     password = request.POST['regpw'].strip()
-   
+
     try:
         user = Users.objects.get(email = email,  password = password)
         print 'User Already Registered'
->>>>>>> 1d0cc613b760fe61c885ae564a32b88875cca318
         return False
 
     except Users.DoesNotExist:
@@ -71,12 +62,7 @@ def login_user(request):
 
     except Users.DoesNotExist:
         print 'Incorrect login'
-<<<<<<< HEAD
-        #Someone has to make the HTML to handle incorrect login
-        return render(request,'project/index.html')
-=======
         return False
->>>>>>> 1d0cc613b760fe61c885ae564a32b88875cca318
 
 def scrape_data(request):
     if request.GET['term']:
@@ -102,13 +88,7 @@ def scrape_data(request):
         print 'Checking Cache'
         search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
         search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
-<<<<<<< HEAD
 
-        #NOT SHOWING ALL ITEMS - TODO
-
-=======
-          
->>>>>>> 1d0cc613b760fe61c885ae564a32b88875cca318
         for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
             print "CRAIGSLIST: " + c_item.title + " PRICE: " + str(c_item.price)
 
