@@ -28,7 +28,7 @@ def check_queue():
         with lock:
             if(len(job_queue) > 0):
                 if((job_queue[0]['timestamp'] == 0) or (((int(time.time()) - int(job_queue[0]['timestamp']))/60) >= 15)):
-                    print job_queue
+                    #print job_queue
                     tmp = job_queue.pop(0)
 
                     start_scraping(conn,tmp)

@@ -1,9 +1,11 @@
+
 from django.shortcuts import render
 from django.http import HttpResponse
 from models import *
 
 import cities_dictionary
 import aggregator
+import time
 
 def index(request):
     if request.method == 'POST':
@@ -94,6 +96,8 @@ def scrape_data(request):
 
         for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
             print "EBAY: " + e_item.title + " PRICE: " + str(e_item.price)
+    
+        return render('project/dashboard.html', {"message": "HELLO"})
 
     #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
     except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
@@ -103,5 +107,9 @@ def scrape_data(request):
         print 'Cache Miss: Scrapping'
         aggregator.scrape_data(keyword,max_price,min_price,city,user)
 
-    #Think this has to be changed
-    return render(request, 'project/dashboard.html')
+        while True:
+            try:
+                search = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price)) 
+                return render(request, 'project/dashboard.html', {"message":"hii!"})
+            except Ebay_Search.DoesNotExist:
+                time.sleep(.5)

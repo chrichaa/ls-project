@@ -12,7 +12,7 @@ def scrape_data(keyword,max_price,min_price,city,user):
 #    city      = raw_input('Enter city: ')
 #    user      = raw_input('Enter user: ')
 
-    data = { 'keyword' : keyword.strip(), 'max_price' : max_price.strip(), 'min_price' : min_price.strip(), 'city' : city.strip(), 'user' : user.strip(), 'timestamp' : 0 }
+    data = {'keyword' : keyword.strip(), 'max_price' : max_price.strip(), 'min_price' : min_price.strip(), 'city' : city.strip(), 'user' : user.strip(), 'timestamp' : 0 }
     json = demjson.encode(data)
     
     if ((keyword != 'None') and (max_price != '0')):    
