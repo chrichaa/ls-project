@@ -15,7 +15,7 @@ def index(request):
         else:
             #Someone has to make the HTML to handle incorrect login
             print 'Handle if incorrect login'
-            #return render(request,'project/login.html', {"message": "The login information entered is incorrect."})
+            return render(request,'project/index.html', {"message": "The login information entered is incorrect."})
 
     return render(request, 'project/index.html')
 
@@ -27,7 +27,7 @@ def register(request):
         else:
             #Someone has to make the HTML to handle incorrect login
             print 'Handle if user is registered already'
-            #return render(request,'project/register.html', {"message": "This user is registered already."})
+            return render(request,'project/register.html', {"message": "This user is registered already."})
 
     return render(request, 'project/register.html')
 
@@ -42,7 +42,7 @@ def register_user(request):
     password = request.POST['regpw'].strip()
 
     try:
-        user = Users.objects.get(email = email,  password = password)
+        user = Users.objects.get(email = email)
         print 'User Already Registered'
         return False
 

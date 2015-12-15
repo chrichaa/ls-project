@@ -9,6 +9,8 @@ from project.models import *
 from ebaysdk.exception import ConnectionError
 from ebaysdk.finding import Connection as Finding
 from django.utils import timezone
+from django.shortcuts import render
+from django.http import HttpResponse
 
 def fetch_results(user,item,min_price,max_price):
     try:
@@ -87,7 +89,7 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
 # /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
 # //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
 
-    #STILL HAVE TO DO USER
+    return render_to_response('project/dashboard.html', {"message":"IT WORKS!"}) 
 
 def ebay_scrape(user,item,min_price,max_price):
     return fetch_results(user,item,min_price,max_price)
