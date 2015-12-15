@@ -9,6 +9,7 @@ class Users(models.Model):
     password          = models.CharField(max_length = 255)
     ebay_search       = ListField(EmbeddedModelField('Ebay_Search'))
     craigslist_search = ListField(EmbeddedModelField('Craigslist_Search'))
+    user_id           = models.AutoField(primary_key=True)
 
 class Craigslist_Search(models.Model):
     keyword      = models.CharField(max_length = 255)
