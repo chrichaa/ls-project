@@ -38,6 +38,9 @@
                 </div>
                 <a href="/project" class="btn btn-default" name="gohome" id="gohome">Log in to an existing account!</a>
             </div>
+            {% if message %}
+                <div class="container"><h2 class="text-center"> {{message}} </h2></div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

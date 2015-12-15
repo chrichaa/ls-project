@@ -90,6 +90,9 @@
                     </div>
                 </div>
             </div>
+            {% if message %}
+                <div class="container"><h2 class="text-center"> {{message}} </h2></div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
