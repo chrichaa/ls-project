@@ -37,7 +37,6 @@ def dashboard(request):
 
 def register_user(request):
     email    = request.POST['regemail'].strip()
-    username = request.POST['regun'].strip()
     password = request.POST['regpw'].strip()
 
     try:
@@ -46,13 +45,12 @@ def register_user(request):
         return False
 
     except Users.DoesNotExist:
-        new_user = Users.objects.create(name = username, email = email, password = password, ebay_search = [], craigslist_search = [])
+        new_user = Users.objects.create(email = email, password = password, ebay_search = [], craigslist_search = [])
         print 'New User Added!'
         return new_user.user_id
 
 def login_user(request):
     email    = request.POST['email'].strip()
-    username = request.POST['username'].strip()
     password = request.POST['password'].strip()
 
     try:
