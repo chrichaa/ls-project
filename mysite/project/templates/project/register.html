@@ -27,13 +27,10 @@
                         {% csrf_token %}
                         <fieldset>
                             <div class="form-group">
-                                <input type="text" class="form-control" name="regun" id="regun" placeholder="Username" required>
+                                <input type="email" class="form-control" name="regemail" id="regemail" placeholder="Email" required>
                             </div>
                             <div class="form-group">
                                 <input type="password" class="form-control" name="regpw" id="regpw" placeholder="Password" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="email" class="form-control" name="regemail" id="regemail" placeholder="Email" required>
                             </div>
                             <button type="submit" class="btn btn-primary pull-right" name="regbutton" id="regbutton">Register</button>
                         </fieldset>
