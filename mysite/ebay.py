@@ -63,7 +63,6 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
         except Ebay_Item.DoesNotExist:
             i = Ebay_Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = timezone.now())
             num_added = num_added + 1
-            i.insert_one()
 
     try:
         e_search = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
@@ -74,6 +73,7 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
 
     print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
+
 # /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
 # //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
 #    if(len(items_list) > 0):

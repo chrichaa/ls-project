@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from models import *
 
+import cities_dictionary
 import aggregator
 
 def index(request):
@@ -65,19 +66,15 @@ def scrape_data(request):
 
     if request.GET['maxprice']:
         max_price = request.GET['maxprice']
-    elif (int(request.GET['maxprice']) > 999999):
-        max_price = '999999.99'
     else:
-        max_price = '999999.99'
+        max_price = '999999'
 
     if request.GET['minprice']:
         min_price = request.GET['minprice']
     else:
         min_price = '0'
-   
-    print 'CITY DROPDOWN: ' + request.GET['citydrop']
-
-    city = 'newyork.craigslist.org'
+     
+    city = cities_dictionary.get_cities().get(request.GET['citydrop'])
     user = 'tmp_user'
 
     #Rough Cache - Not too good, needs work 

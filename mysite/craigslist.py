@@ -86,7 +86,6 @@ def craigslist_scrape(user,city,keyword_item,min_price,max_price):
             except Craigslist_Item.DoesNotExist:
                 i = Craigslist_Item.objects.create(title = dict[city_key][item_key]['title'], keyword = keyword_item, url = dict[city_key][item_key]['url'], price = int(float(dict[city_key][item_key]['price'])), key = dict[city_key][item_key]['key'], city = city_key,time_created = timezone.now())
                 num_added = num_added + 1
-                i.insert_one()
         try:
             c_search = Craigslist_Search.objects.get(keyword = keyword_item, city = city_key, min_price = min_price, max_price = max_price)
             num_searches_cached = num_searches_cached + 1
