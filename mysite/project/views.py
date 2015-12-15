@@ -15,27 +15,27 @@ def register(request):
             return render(request,'project/dashboard.html')
         else:
             #Someone has to make the HTML to handle incorrect login
-            print 'Handle if user is registered already' 
+            print 'Handle if user is registered already'
 
     return render(request, 'project/register.html')
 
 def dashboard(request):
     #Get current user's searches and fetch results from mongo tables
-    #Refresh HTML table with results 
-   
+    #Refresh HTML table with results
+
     return render(request, 'project/dashboard.html')
 
 def register_user(request):
     email    = request.POST['regemail'].strip()
     username = request.POST['regun'].strip()
     password = request.POST['regun'].strip()
-   
+
     try:
         user = Users.objects.get(email = email,  password = password)
         print 'User Already Registered'
-        
+
         return False
-    
+
     except Users.DoesNotExist:
         new_user = Users.objects.create(name = username, email = email, password = password, ebay_search = [], craigslist_search = [])
         new_user.save()
@@ -56,7 +56,7 @@ def login_user(request):
     except Users.DoesNotExist:
         print 'Incorrect login'
         #Someone has to make the HTML to handle incorrect login
-        return render(request,'project/login_error.html')
+        return render(request,'project/index.html')
 
 def scrape_data(request):
     if request.GET['term']:
@@ -73,18 +73,18 @@ def scrape_data(request):
         min_price = request.GET['minprice']
     else:
         min_price = '0'
-     
+
     city = cities_dictionary.get_cities().get(request.GET['citydrop'])
     user = 'tmp_user'
 
-    #Rough Cache - Not too good, needs work 
+    #Rough Cache - Not too good, needs work
     try:
         print 'Checking Cache'
         search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
         search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
-        
+
         #NOT SHOWING ALL ITEMS - TODO
-        
+
         for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
             print "CRAIGSLIST: " + c_item.title + " PRICE: " + str(c_item.price)
 
@@ -94,7 +94,7 @@ def scrape_data(request):
     #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
     except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
         print 'Multiple Objects Returned'
-       
+
     except (Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
         print 'Cache Miss: Scrapping'
         aggregator.scrape_data(keyword,max_price,min_price,city,user)
