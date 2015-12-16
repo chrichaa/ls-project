@@ -46,7 +46,6 @@ def fetch_results(keyword,city,min_price,max_price):
     return dict
 
 def get_nearby_cities(city):
-    #Hardcoding for now - TODO
     url = city
 
     page = requests.get('http://'+url)
@@ -65,9 +64,13 @@ def craigslist_scrape(user,city,keyword_item,min_price,max_price):
     num_of_items = 0
         
     for x in range(len(cities)):
-        tmp_dict = fetch_results(keyword_item,cities[x],min_price,max_price)
-        num_of_items = num_of_items + len(tmp_dict)
-        dict[str(cities[x])] = tmp_dict
+        try:
+            Craigslist_Search.objects.get(keyword = keyword_item, city = cities[x], min_price__lte = min_price, max_price__gte = max_price)
+            print 'City Cahced!'
+        except Craigslist_Search.DoesNotExist:
+            tmp_dict = fetch_results(keyword_item,cities[x],min_price,max_price)
+            num_of_items = num_of_items + len(tmp_dict)
+            dict[str(cities[x])] = tmp_dict
 
     min_price = int(min_price)
     max_price = int(max_price)
