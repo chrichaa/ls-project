@@ -38,7 +38,7 @@ def fetch_results(user,item,min_price,max_price):
                    
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))
         
-            send_to_database(user,item,min_price,max_price,temp_dictionary)
+            send_to_database(user,item,min_price,max_price,temp_dictionary,count)
         else:
             count = 0
 
@@ -48,7 +48,7 @@ def fetch_results(user,item,min_price,max_price):
         print(e.response.dict())
         return 0 
 
-def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keyword,dict):
+def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keyword,dict,num_of_results):
 
     min_price_keyword  = int(min_price_keyword)
     max_price_keyword  = int(max_price_keyword)
@@ -70,9 +70,13 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
     try:
         e_search = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
         num_searches_cached = num_searches_cached + 1
+        if num_added >= 1:
+            e_search.result_amount = e_search.result_amount + num_added
     except Ebay_Search.DoesNotExist:
-        e_search = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
+        e_search = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, result_amount = num_of_results)
         num_searches_added = num_searches_added + 1
+
+    e_search.save()
 
     print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)

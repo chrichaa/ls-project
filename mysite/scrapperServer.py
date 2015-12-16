@@ -9,10 +9,15 @@ import ebay
 import threading
 import time
 import inspect
+import os
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+
+from project.models import *
+from django.utils import timezone
 from sys import argv
 
-job_queue = []
+#job_queue = []
 conn = None
 
 lock = threading.Lock()
@@ -26,23 +31,28 @@ def check_queue():
     while True:
         caller = inspect.getouterframes(inspect.currentframe())[1][3]
         with lock:
-            if(len(job_queue) > 0):
-                if((job_queue[0]['timestamp'] == 0) or (((int(time.time()) - int(job_queue[0]['timestamp']))/60) >= 15)):
+            if(Job_Queue.objects.exists()):
+                first_in_queue = Job_Queue.objects.order_by('time_created').first()
+                if((first_in_queue.time_created == 0) or (((int(time.time()) - int(first_in_queue.time_created))/60) >= 2)):
                     #print job_queue
-                    tmp = job_queue.pop(0)
+                    #tmp = job_queue.pop(0)
 
+                    tmp = first_in_queue
                     start_scraping(conn,tmp)
+                    first_in_queue.delete()
 
-                    tmp['timestamp'] = int(time.time())
-                    job_queue.append(tmp)
+                    Job_Queue.objects.create(keyword = tmp.keyword, max_price = int(tmp.max_price), min_price = int(tmp.min_price), city = tmp.city, user = tmp.user, time_created = int(time.time()))
+
+                    #tmp['timestamp'] = int(time.time())
+                    #job_queue.append(tmp)
 
 def start_scraping(conn,data):
-    print 'Scraping: '+ data['keyword'] + ' From: ' + data['city'] + ' For: ' + data['user'] + ' Between $' + data['min_price'] + ' and $' + data['max_price']
+    print 'Scraping: '+ data.keyword + ' From: ' + data.city + ' For: ' + data.user + ' Between $' + str(data.min_price) + ' and $' + str(data.max_price)
     #locationFile.write(data['city'])
     begin = time.time()
     
     print "Scrapping Craigslist ...."
-    num_of_craigslist_results = craigslist.craigslist_scrape(data['user'],data['city'],data['keyword'],data['min_price'],data['max_price'])
+    num_of_craigslist_results = craigslist.craigslist_scrape(data.user,data.city,data.keyword,data.min_price,data.max_price)
     print ("Craigslist Results: %d")%(num_of_craigslist_results)
 #    #resultFile.write( integer with number of results)
 
@@ -54,7 +64,7 @@ def start_scraping(conn,data):
 # ///////////////// WARNING - AMAZON DOESNT WORK, DO NOT USE /////////////////
 
     print "Scrapping eBay ...."
-    num_of_ebay_results = ebay.ebay_scrape(data['user'],data['keyword'],data['min_price'],data['max_price'])
+    num_of_ebay_results = ebay.ebay_scrape(data.user,data.keyword,data.min_price,data.max_price)
     print ("eBay Results: %d")%(num_of_ebay_results)
 #    #resultFile.write( integer with number of results)
 
@@ -77,7 +87,8 @@ def add_to_queue(conn):
             
             with lock:
                 print "Acquiring lock"
-                job_queue.insert(0,parsed_json)
+                Job_Queue.objects.create(keyword = parsed_json['keyword'], max_price = int(parsed_json['max_price']), min_price = int(parsed_json['min_price']), city = parsed_json['city'], user = parsed_json['user'], time_created = 0)
+#                job_queue.insert(0,parsed_json)
                 reply = 'Added '+data+' to priority queue'
 
         conn[0].sendall(reply)

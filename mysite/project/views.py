@@ -94,21 +94,22 @@ def scrape_data(request):
 
         results = {}
 
+        c_count = 0
+        e_count = 0
+
         for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
-            results[c_item.key] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)} 
+            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)} 
+            c_count = c_count + 1
 
         for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-            results[e_item.key] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+            e_count = e_count + 1
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-
+        
         return render(request, 'project/dashboard.html', {"message":'CACHED'})
-
-    #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
-    #except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
-        #print 'Multiple Objects Returned'
        
-    except (Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
+    except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned, Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
         print 'Cache Miss: Scrapping'
         aggregator.scrape_data(keyword,max_price,min_price,request.GET['citydrop'],user)
 
@@ -119,14 +120,19 @@ def scrape_data(request):
             
                 results = {}
 
+                c_count = 0
+                e_count = 0
+
                 for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))):
-                    results[c_item.key] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
+                    results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
+                    c_count = c_count + 1
 
                 for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-                    results[e_item.key] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
-                
-                print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
+                    results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+                    e_count = e_count + 1                
 
+                print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
+                
                 return render(request, 'project/dashboard.html', {"message":'SCRAPPED'})
             except (Ebay_Search.DoesNotExist, Craigslist_Search.DoesNotExist) as e:
                 time.sleep(.5)
