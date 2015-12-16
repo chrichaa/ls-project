@@ -69,7 +69,7 @@ def login_user(request):
 
 def scrape_data(request):
     if request.GET['term']:
-        keyword = request.GET['term']
+        keyword = unicode(str.lower(str(request.GET['term'])))
     else:
         keyword = 'None'
 
@@ -125,7 +125,7 @@ def scrape_data(request):
                 for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
                     results[e_item.key] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
                 
-                print json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
+                print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
 
                 return render(request, 'project/dashboard.html', {"message":'SCRAPPED'})
             except (Ebay_Search.DoesNotExist, Craigslist_Search.DoesNotExist) as e:
