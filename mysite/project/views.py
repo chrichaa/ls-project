@@ -6,6 +6,7 @@ from models import *
 import cities_dictionary
 import aggregator
 import time
+import json
 
 def index(request):
     if request.method == 'POST':
@@ -91,26 +92,43 @@ def scrape_data(request):
         search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
         search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
 
+        results = {}
+
         for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
-            print "CRAIGSLIST: " + c_item.title + " PRICE: " + str(c_item.price)
+            results[c_item.key] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)} 
 
         for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-            print "EBAY: " + e_item.title + " PRICE: " + str(e_item.price)
-        return render(request, 'project/dashboard.html', {"message":"CACHED"})
+            results[e_item.key] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+
+        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
+        return render(request, 'project/dashboard.html', {"message":'CACHED'})
 
     #HAVE TO FIGURE OUT HOW TO HANDLE - TODO
-    except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
-        print 'Multiple Objects Returned'
+    #except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned) as e:
+        #print 'Multiple Objects Returned'
        
     except (Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
         print 'Cache Miss: Scrapping'
-        aggregator.scrape_data(keyword,max_price,min_price,city,user)
+        aggregator.scrape_data(keyword,max_price,min_price,request.GET['citydrop'],user)
 
         while True:
             try:
-                search = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price)) 
-                return render(request, 'project/dashboard.html', {"message":"SCRAPED"})
-            except Ebay_Search.DoesNotExist:
+                ebay_search = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price)) 
+                craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price),max_price = int(max_price)) 
+            
+                results = {}
+
+                for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))):
+                    results[c_item.key] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
+
+                for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
+                    results[e_item.key] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+                
+                print json.dumps(result, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
+
+                return render(request, 'project/dashboard.html', {"message":'SCRAPPED'})
+            except (Ebay_Search.DoesNotExist, Craigslist_Search.DoesNotExist) as e:
                 time.sleep(.5)
     
-    return render(request, 'project/dashboard.html', {"message":"OTHER - Will Handle"})
+    return render(request, 'project/dashboard.html', {"message":"OTHER - THIS SHOULD NEVER HAPPEN!"})

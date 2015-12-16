@@ -8,6 +8,8 @@ import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
+import project.cities_dictionary as cities_dictionary
+
 from lxml import html
 from project.models import *
 from django.utils import timezone
@@ -46,40 +48,42 @@ def fetch_results(keyword,city,min_price,max_price):
     return dict
 
 def get_nearby_cities(city):
-    url = city
+    #url = cities_dictionary.get_cities().get(city)
+    close_cities = cities_dictionary.get_close_cities()
 
-    page = requests.get('http://'+url)
-    tree = html.fromstring(page.text)
-    
-    cities = [url]
-    
-    for link in tree.xpath('//*[@id="rightbar"]/ul/li[1]/ul//a'):
-        cities.append(link.attrib['href'].replace('//','').replace('/',''))
+    #page = requests.get('http://'+url)
+    #tree = html.fromstring(page.text)
 
-    return cities
+    #cities = [url]
+    
+    #for link in tree.xpath('//*[@id="rightbar"]/ul/li[1]/ul//a'):
+        #cities.append(link.attrib['href'].replace('//','').replace('/',''))
+
+    return close_cities[city]
 
 def craigslist_scrape(user,city,keyword_item,min_price,max_price):
     dict = {}
     cities = get_nearby_cities(city)
     num_of_items = 0
-        
-    for x in range(len(cities)):
-        try:
-            Craigslist_Search.objects.get(keyword = keyword_item, city = cities[x], min_price__lte = min_price, max_price__gte = max_price)
-            print 'City Cahced!'
-        except Craigslist_Search.DoesNotExist:
-            tmp_dict = fetch_results(keyword_item,cities[x],min_price,max_price)
-            num_of_items = num_of_items + len(tmp_dict)
-            dict[str(cities[x])] = tmp_dict
 
     min_price = int(min_price)
     max_price = int(max_price)
 
     num_cached = 0
-    num_added  = 0 
+    num_added  = 0
 
     num_searches_cached = 0
     num_searches_added  = 0
+        
+    for x in range(len(cities)):
+        try:
+            Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price__lte = min_price, max_price__gte = max_price)
+            num_searches_cached = num_searches_cached + 1
+            print 'City Cached!'
+        except Craigslist_Search.DoesNotExist:
+            tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
+            num_of_items = num_of_items + len(tmp_dict)
+            dict[str(cities[x])] = tmp_dict
 
     for city_key in dict:
         for item_key in dict[city_key]:
