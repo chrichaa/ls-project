@@ -69,6 +69,8 @@ def start_scraping(conn,data):
 #    #resultFile.write( integer with number of results)
 
     print ('Done! Took: %d Seconds')%(int(time.time()-begin))
+    print ('-----------------------------------------------')
+    print (' \n')
 #    #timeFile.write('Done! Took: %d Seconds')%(int(time.time()-begin))
 #    #remove formatting for analysis
 
