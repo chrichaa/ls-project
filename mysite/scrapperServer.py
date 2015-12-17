@@ -33,7 +33,7 @@ def check_queue():
         with lock:
             if(Job_Queue.objects.exists()):
                 first_in_queue = Job_Queue.objects.order_by('time_created').first()
-                if((first_in_queue.time_created == 0) or (((int(time.time()) - int(first_in_queue.time_created))/60) >= 2)):
+                if((first_in_queue.time_created == 0) or (((int(time.time()) - int(first_in_queue.time_created))/60) >= 15)):
                     #print job_queue
                     #tmp = job_queue.pop(0)
 

@@ -34,6 +34,8 @@ def fetch_results(keyword,city,min_price,max_price):
             for x in range(len(split_title)-1):
                 if '$' in split_title[x]:
                     price = re.sub("[^0-9]", "", split_title[x].replace('$',' '))
+                    split_title.remove(split_title[x])
+                    title = ' '.join(split_title)
 		    if not price:
                         price = "0"
                     break
@@ -49,7 +51,7 @@ def fetch_results(keyword,city,min_price,max_price):
 
 def get_nearby_cities(city):
     #url = cities_dictionary.get_cities().get(city)
-    close_cities = cities_dictionary.get_close_cities()
+    close_cities = cities_dictionary.get_close_cities()[city]
 
     #page = requests.get('http://'+url)
     #tree = html.fromstring(page.text)
@@ -59,7 +61,7 @@ def get_nearby_cities(city):
     #for link in tree.xpath('//*[@id="rightbar"]/ul/li[1]/ul//a'):
         #cities.append(link.attrib['href'].replace('//','').replace('/',''))
 
-    return close_cities[city]
+    return close_cities
 
 def craigslist_scrape(city,keyword_item,min_price,max_price):
     dict = {}
