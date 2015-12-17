@@ -40,7 +40,7 @@ def dashboard(request):
 
     return render(request, 'project/dashboard.html')
 
-def monitoring(request):
+def monitordash(request):
     #show monitoring information
     return render(request, 'project/monitordash.html')
 
@@ -75,8 +75,8 @@ def data_analysis(request):
     #require a filter to use service
     #display most recent searches
     if request.GET['filter'] == "time":
-    	Ebay_results=Ebay_Item.objects.find().sort({time_created:-1}).limit(10)
-    	Craig_results=Craigslist_Item.objects.find().sort({time_created:-1}).limit(10)
+    	Ebay_results=Ebay_Item.objects.order_by('-time_created')[:10]
+    	Craig_results=Craigslist_Item.objects.order_by('-time_created')[:10]
     	results={}
 	
 	c_count=0
@@ -91,13 +91,13 @@ def data_analysis(request):
             e_count = e_count + 1
 
     	print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-    	return(render, 'project/monitordash.html', {"message":'Results by time'}
-    
+    	#return(render, 'project/monitordash.html', {"message":'Results by time'}) 
+        #return(render, 'project/monitordash.html')
 
     #display most expensive items
     if request.GET['filter'] == "price":
-        Ebay_results=Ebay_Item.objects.find().sort({price:-1}).limit(10)
-        Craig_results=Craigslist_Item.objects.find().sort({price:-1}).limit(10)
+        Ebay_results=Ebay_Item.objects.order_by('-price')[:10]
+        Craig_results=Craigslist_Item.objects.order_by('-price')[:10]
         results={}
 
         c_count=0
@@ -112,9 +112,10 @@ def data_analysis(request):
             e_count = e_count + 1
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return(render, 'project/monitordash.html', {"message":'Results by time'}
+        #return(render, 'project/monitordash.html',{"message":'Results by time'})
+        #return(render, 'project/monitordash.html')
 
-
+    return render(request, 'project/monitordash.html')
     
 def scrape_data(request):
     if request.GET['term']:
@@ -159,11 +160,11 @@ def scrape_data(request):
             if search1 not in user.craigslist_search:
                 user.craigslist_search.append(search1)
                 print "Added Craigslist_Search to: " + user.email
-             if search2 not in user.ebay_search:
+            if search2 not in user.ebay_search:
                 user.ebay_search.append(search2)
                 print "Added Ebay_Search to: " + user.email
         except User.DoesNotExist:
-            continue
+            pass
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
         

@@ -80,7 +80,7 @@ def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
             Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price__lte = min_price, max_price__gte = max_price)
             num_searches_cached = num_searches_cached + 1
         except Craigslist_Search.MultipleObjectsReturned:
-            continue
+            pass
         except Craigslist_Search.DoesNotExist:
             tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
             num_of_items = num_of_items + len(tmp_dict)
@@ -110,7 +110,7 @@ def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
             user.craigslist_search.append(c_search)
             print "Added Craigslist_Search to: " + user.email
     except User.DoesNotExist:
-        continue 
+        pass
 
     print "Craigslist_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "Craigslist_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)

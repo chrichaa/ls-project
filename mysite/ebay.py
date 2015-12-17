@@ -84,7 +84,7 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
             user.ebay_search.append(e_search)
             print "Added Ebay_Search to: " + user.email
     except User.DoesNotExist:
-        continue
+        pass
 
     print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
