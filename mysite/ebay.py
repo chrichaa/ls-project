@@ -78,21 +78,16 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
 
     e_search.save()
 
+    try:
+        user = Users.objects.get(user_id = user_key)
+        if e_search not in user.ebay_search:
+            user.ebay_search.append(e_search)
+            print "Added Ebay_Search to: " + user.email
+    except User.DoesNotExist:
+        continue
+
     print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
-
-# /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
-# //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
-#    if(len(items_list) > 0):
-#        try:
-#            s = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
-#            s.items.extend(items_list)
-#        except Ebay_Search.DoesNotExist:
-#            s = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, items = items_list)
-#        s.save()
-#        print 'Inserted Ebay Search!'
-# /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
-# //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
 
 def ebay_scrape(user,item,min_price,max_price):
     return fetch_results(user,item,min_price,max_price)

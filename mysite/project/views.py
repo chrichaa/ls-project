@@ -84,7 +84,7 @@ def scrape_data(request):
         min_price = '0'
 
     city = cities_dictionary.get_cities().get(request.GET['citydrop'])
-    user = 'tmp_user'
+    user = '5671d336b2b851092976a0da'
 
     #Rough Cache - Not too good, needs work
     try:
@@ -104,6 +104,17 @@ def scrape_data(request):
         for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
             results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
             e_count = e_count + 1
+
+        try:
+            user = Users.objects.get(user_id = user_key)
+            if search1 not in user.craigslist_search:
+                user.craigslist_search.append(search1)
+                print "Added Craigslist_Search to: " + user.email
+             if search2 not in user.ebay_search:
+                user.ebay_search.append(search2)
+                print "Added Ebay_Search to: " + user.email
+        except User.DoesNotExist:
+            continue
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
         

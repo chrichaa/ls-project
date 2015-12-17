@@ -61,7 +61,7 @@ def get_nearby_cities(city):
 
     return close_cities[city]
 
-def craigslist_scrape(user,city,keyword_item,min_price,max_price):
+def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
     dict = {}
     cities = get_nearby_cities(city)
     num_of_items = 0
@@ -104,21 +104,16 @@ def craigslist_scrape(user,city,keyword_item,min_price,max_price):
             num_searches_added = num_searches_added + 1
         c_search.save()
 
+    try:
+        user = Users.objects.get(user_id = user_key)
+        if c_search not in user.craigslist_search:
+            user.craigslist_search.append(c_search)
+            print "Added Craigslist_Search to: " + user.email
+    except User.DoesNotExist:
+        continue 
+
     print "Craigslist_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "Craigslist_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
-
-# /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
-# //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
-#        if(len(items_list) > 0):
-#            try:
-#                s = Craigslist_Search.objects.get(keyword = keyword_item, city = city_key, min_price = min_price, max_price = max_price)
-#                s.items.extend(items_list)
-#            except Craigslist_Search.DoesNotExist:
-#                s = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, items = items_list)
-#            s.save()
-#            print 'Inserted Craigslist Search!'
-# /////////// NEED CURRENT USER -> THEN CHECK IF THEY ALRADY SEARCHED      ///////////
-# //////////  IF THEY HAVEN'T SEARCHED, THEN ADD CRAIGSLIST SEARCH TO USER ///////////
 
 #    print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
