@@ -81,7 +81,12 @@ def craigslist_scrape(city,keyword_item,min_price,max_price):
         try:
             Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price__lte = min_price, max_price__gte = max_price)
             num_searches_cached = num_searches_cached + 1
-        except (Craigslist_Search.MultipleObjectsReturned, Craigslist_Search.DoesNotExist) as e:
+            dict[str(cities[x])] = {}
+
+        except Craigslist_Search.MultipleObjectsReturned:
+            dict[str(cities[x])] = {}
+        
+        except Craigslist_Search.DoesNotExist:
             tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
             num_of_items = num_of_items + len(tmp_dict)
             dict[str(cities[x])] = tmp_dict
@@ -91,17 +96,21 @@ def craigslist_scrape(city,keyword_item,min_price,max_price):
             try:
                 i = Craigslist_Item.objects.get(key = dict[city_key][item_key]['key'])
                 num_cached = num_cached + 1
+            
             except Craigslist_Item.DoesNotExist:
                 i = Craigslist_Item.objects.create(title = dict[city_key][item_key]['title'], keyword = keyword_item, url = dict[city_key][item_key]['url'], price = int(float(dict[city_key][item_key]['price'])), key = dict[city_key][item_key]['key'], city = city_key,time_created = timezone.now())
                 num_added = num_added + 1
+    
         try:
             c_search = Craigslist_Search.objects.get(keyword = keyword_item, city = city_key, min_price = min_price, max_price = max_price)
             num_searches_cached = num_searches_cached + 1
             if num_added >= 1:
                 c_search.result_amount = c_search.result_ammount + num_added
+        
         except Craigslist_Search.DoesNotExist:
             c_search = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, result_amount = num_of_items)
             num_searches_added = num_searches_added + 1
+
         c_search.save()
 
     print "Craigslist_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
