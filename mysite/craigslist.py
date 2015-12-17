@@ -61,7 +61,7 @@ def get_nearby_cities(city):
 
     return close_cities[city]
 
-def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
+def craigslist_scrape(city,keyword_item,min_price,max_price):
     dict = {}
     cities = get_nearby_cities(city)
     num_of_items = 0
@@ -79,9 +79,7 @@ def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
         try:
             Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price__lte = min_price, max_price__gte = max_price)
             num_searches_cached = num_searches_cached + 1
-        except Craigslist_Search.MultipleObjectsReturned:
-            pass
-        except Craigslist_Search.DoesNotExist:
+        except (Craigslist_Search.MultipleObjectsReturned, Craigslist_Search.DoesNotExist) as e:
             tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
             num_of_items = num_of_items + len(tmp_dict)
             dict[str(cities[x])] = tmp_dict
@@ -103,14 +101,6 @@ def craigslist_scrape(user_key,city,keyword_item,min_price,max_price):
             c_search = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, result_amount = num_of_items)
             num_searches_added = num_searches_added + 1
         c_search.save()
-
-    try:
-        user = Users.objects.get(user_id = user_key)
-        if c_search not in user.craigslist_search:
-            user.craigslist_search.append(c_search)
-            print "Added Craigslist_Search to: " + user.email
-    except User.DoesNotExist:
-        pass
 
     print "Craigslist_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "Craigslist_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)

@@ -139,63 +139,45 @@ def scrape_data(request):
     #Rough Cache - Not too good, needs work
     try:
         print 'Checking Cache'
-        search1 = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price__lte = int(min_price), max_price__gte = int(max_price))
-        search2 = Ebay_Search.objects.get(keyword = keyword, min_price__lte = int(min_price), max_price__gte = int(max_price))
+        craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
+        ebay_search       = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price))
 
-        results = {}
-
-        c_count = 0
-        e_count = 0
-
-        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
-            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)} 
-            c_count = c_count + 1
-
-        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
-            e_count = e_count + 1
-
-        try:
-            user = Users.objects.get(user_id = user_key)
-            if search1 not in user.craigslist_search:
-                user.craigslist_search.append(search1)
-                print "Added Craigslist_Search to: " + user.email
-            if search2 not in user.ebay_search:
-                user.ebay_search.append(search2)
-                print "Added Ebay_Search to: " + user.email
-        except User.DoesNotExist:
-            pass
-
-        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        
-        return render(request, 'project/dashboard.html', {"message":'CACHED'})
-       
     except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned, Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
         print 'Cache Miss: Scrapping'
-        aggregator.scrape_data(keyword,max_price,min_price,request.GET['citydrop'],user)
+        aggregator.scrape_data(keyword,max_price,min_price,request.GET['citydrop'])
 
         while True:
             try:
-                ebay_search = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price)) 
-                craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price),max_price = int(max_price)) 
+                ebay_search       = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price))
+                craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
             
-                results = {}
-
-                c_count = 0
-                e_count = 0
-
-                for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))):
-                    results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
-                    c_count = c_count + 1
-
-                for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-                    results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
-                    e_count = e_count + 1                
-
-                print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))                
-                
-                return render(request, 'project/dashboard.html', {"message":'SCRAPPED'})
             except (Ebay_Search.DoesNotExist, Craigslist_Search.DoesNotExist) as e:
                 time.sleep(.5)
+
+    try:
+        user = Users.objects.get(user_id = user_key)
+        if craigslist_search not in user.craigslist_search:
+            user.craigslist_search.append(search1)
+            print "Added Craigslist_Search to: " + user.email
+        if ebay_search not in user.ebay_search:
+            user.ebay_search.append(search2)
+            print "Added Ebay_Search to: " + user.email
+    except User.DoesNotExist:
+        pass
     
-    return render(request, 'project/dashboard.html', {"message":"OTHER - THIS SHOULD NEVER HAPPEN!"})
+    results = {}
+        
+    c_count = 0
+    e_count = 0
+    
+    for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
+        results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
+        c_count = c_count + 1
+    
+    for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
+        results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+        e_count = e_count + 1
+    
+    print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+    
+    return render(request, 'project/dashboard.html', {"message":'DONE'})

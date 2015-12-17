@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.http import HttpResponse
 
-def fetch_results(user,item,min_price,max_price):
+def fetch_results(item,min_price,max_price):
     try:
         api = Finding(appid="Jeremiah-c9e4-41cd-93a3-db5086f58faf")
         response = api.execute('findItemsAdvanced', {'keywords': item, 'sortOrder': 'StartTimeNewest', 'itemFilter': {'name' : 'MinPrice' , 'value' : min_price, 'paramName' : 'Currency', 'paramValue' :'USD'}, 'itemFilter': {'name' : 'MaxPrice' , 'value' : max_price, 'paramName' : 'Currency', 'paramValue' :'USD'}})
@@ -38,7 +38,7 @@ def fetch_results(user,item,min_price,max_price):
                    
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))
         
-            send_to_database(user,item,min_price,max_price,temp_dictionary,count)
+            send_to_database(item,min_price,max_price,temp_dictionary,count)
         else:
             count = 0
 
@@ -48,7 +48,7 @@ def fetch_results(user,item,min_price,max_price):
         print(e.response.dict())
         return 0 
 
-def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keyword,dict,num_of_results):
+def send_to_database(item_keyword,min_price_keyword,max_price_keyword,dict,num_of_results):
 
     min_price_keyword  = int(min_price_keyword)
     max_price_keyword  = int(max_price_keyword)
@@ -78,16 +78,8 @@ def send_to_database(user_keyword,item_keyword,min_price_keyword,max_price_keywo
 
     e_search.save()
 
-    try:
-        user = Users.objects.get(user_id = user_key)
-        if e_search not in user.ebay_search:
-            user.ebay_search.append(e_search)
-            print "Added Ebay_Search to: " + user.email
-    except User.DoesNotExist:
-        pass
-
     print "eBay_Item num_cached: " + str(num_cached) + " num_added: " + str(num_added)
     print "eBay_Search num_cached: " + str(num_searches_cached) + " num_added: " + str(num_searches_added)
 
-def ebay_scrape(user,item,min_price,max_price):
-    return fetch_results(user,item,min_price,max_price)
+def ebay_scrape(item,min_price,max_price):
+    return fetch_results(item,min_price,max_price)

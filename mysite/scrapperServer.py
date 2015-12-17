@@ -41,30 +41,30 @@ def check_queue():
                     start_scraping(conn,tmp)
                     first_in_queue.delete()
 
-                    Job_Queue.objects.create(keyword = tmp.keyword, max_price = int(tmp.max_price), min_price = int(tmp.min_price), city = tmp.city, user = tmp.user, time_created = int(time.time()))
+                    Job_Queue.objects.create(keyword = tmp.keyword, max_price = int(tmp.max_price), min_price = int(tmp.min_price), city = tmp.city, time_created = int(time.time()))
 
                     #tmp['timestamp'] = int(time.time())
                     #job_queue.append(tmp)
 
 def start_scraping(conn,data):
-    print 'Scraping: '+ data.keyword + ' From: ' + data.city + ' For: ' + data.user + ' Between $' + str(data.min_price) + ' and $' + str(data.max_price)
+    print 'Scraping: '+ data.keyword + ' From: ' + data.city + ' Between $' + str(data.min_price) + ' and $' + str(data.max_price)
     #locationFile.write(data['city'])
     begin = time.time()
     
     print "Scrapping Craigslist ...."
-    num_of_craigslist_results = craigslist.craigslist_scrape(data.user,data.city,data.keyword,data.min_price,data.max_price)
+    num_of_craigslist_results = craigslist.craigslist_scrape(data.city,data.keyword,data.min_price,data.max_price)
     print ("Craigslist Results: %d")%(num_of_craigslist_results)
 #    #resultFile.write( integer with number of results)
 
 # ///////////////// WARNING - AMAZON DOESNT WORK, DO NOT USE /////////////////
 #    print "Scrapping Amazon ...."
-#    num_of_amazon_results = amazon.amazon_scrape(data['user'],data['keyword'],data['min_price'],data['max_price'])
+#    num_of_amazon_results = amazon.amazon_scrape(data['keyword'],data['min_price'],data['max_price'])
 #    print ("Amazon Results: %d")%(num_of_amazon_results)
 #    resultFile.write( integer with number of results)
 # ///////////////// WARNING - AMAZON DOESNT WORK, DO NOT USE /////////////////
 
     print "Scrapping eBay ...."
-    num_of_ebay_results = ebay.ebay_scrape(data.user,data.keyword,data.min_price,data.max_price)
+    num_of_ebay_results = ebay.ebay_scrape(data.keyword,data.min_price,data.max_price)
     print ("eBay Results: %d")%(num_of_ebay_results)
 #    #resultFile.write( integer with number of results)
 
@@ -89,7 +89,7 @@ def add_to_queue(conn):
             
             with lock:
                 print "Acquiring lock"
-                Job_Queue.objects.create(keyword = parsed_json['keyword'], max_price = int(parsed_json['max_price']), min_price = int(parsed_json['min_price']), city = parsed_json['city'], user = parsed_json['user'], time_created = 0)
+                Job_Queue.objects.create(keyword = parsed_json['keyword'], max_price = int(parsed_json['max_price']), min_price = int(parsed_json['min_price']), city = parsed_json['city'], time_created = 0)
 #                job_queue.insert(0,parsed_json)
                 reply = 'Added '+data+' to priority queue'
 
