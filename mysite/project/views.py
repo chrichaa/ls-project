@@ -134,9 +134,8 @@ def scrape_data(request):
         min_price = '0'
 
     city = cities_dictionary.get_cities().get(request.GET['citydrop'])
-    user = '5671d336b2b851092976a0da'
+    user_key = '5672d1fcb2b8510ecdf75945'
 
-    #Rough Cache - Not too good, needs work
     try:
         print 'Checking Cache'
         craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
@@ -155,14 +154,14 @@ def scrape_data(request):
                 time.sleep(.5)
 
     try:
-        user = Users.objects.get(user_id = user_key)
-        if craigslist_search not in user.craigslist_search:
-            user.craigslist_search.append(search1)
-            print "Added Craigslist_Search to: " + user.email
-        if ebay_search not in user.ebay_search:
-            user.ebay_search.append(search2)
-            print "Added Ebay_Search to: " + user.email
-    except User.DoesNotExist:
+        tmp_user = Users.objects.get(user_id = user_key)
+        if craigslist_search not in tmp_user.craigslist_search:
+            user.craigslist_search.append(craigslist_search)
+            print "Added Craigslist_Search to: " + tmp_user.email
+        if ebay_search not in tmp_user.ebay_search:
+            user.ebay_search.append(ebay_search)
+            print "Added Ebay_Search to: " + tmp_user.email
+    except Users.DoesNotExist:
         pass
     
     results = {}
@@ -170,7 +169,7 @@ def scrape_data(request):
     c_count = 0
     e_count = 0
     
-    for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = search1.near_cities, price__range = (int(min_price), int(max_price))):
+    for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))):
         results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
         c_count = c_count + 1
     
