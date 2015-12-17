@@ -40,6 +40,10 @@ def dashboard(request):
 
     return render(request, 'project/dashboard.html')
 
+def monitoring(request):
+    #show monitoring information
+    return render(request, 'project/monitordash.html')
+
 def register_user(request):
     email    = request.POST['regemail'].strip()
     password = request.POST['regpw'].strip()
@@ -67,6 +71,51 @@ def login_user(request):
         print 'Incorrect login'
         return False
 
+def data_analysis(request):
+    #require a filter to use service
+    #display most recent searches
+    if request.GET['filter'] == "time":
+    	Ebay_results=Ebay_Item.objects.find().sort({time_created:-1}).limit(10)
+    	Craig_results=Craigslist_Item.objects.find().sort({time_created:-1}).limit(10)
+    	results={}
+	
+	c_count=0
+	e_count=0
+
+	for c_item in Craig_results:
+            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'time':'$'+str(c_item.time_created)}
+            c_count = c_count + 1
+
+        for e_item in Ebay_results:
+            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'time':'$'+str(e_item.time_created)}
+            e_count = e_count + 1
+
+    	print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+    	return(render, 'project/monitordash.html', {"message":'Results by time'}
+    
+
+    #display most expensive items
+    if request.GET['filter'] == "price":
+        Ebay_results=Ebay_Item.objects.find().sort({price:-1}).limit(10)
+        Craig_results=Craigslist_Item.objects.find().sort({price:-1}).limit(10)
+        results={}
+
+        c_count=0
+        e_count=0
+
+        for c_item in Craig_results:
+            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
+            c_count = c_count + 1
+
+        for e_item in Ebay_results:
+            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
+            e_count = e_count + 1
+
+        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+        return(render, 'project/monitordash.html', {"message":'Results by time'}
+
+
+    
 def scrape_data(request):
     if request.GET['term']:
         keyword = unicode(str.lower(str(request.GET['term'])))
