@@ -8,5 +8,6 @@ urlpatterns = patterns('',
     url(r'^dashboard', views.dashboard, name="dashboard"),
     url(r'^monitordash', views.monitordash, name="monitordash"),
     url(r'^scrape_data', views.scrape_data, name="scrape_data"),
-    url(r'^data_analysis', views.data_analysis, name="data_analysis")
+    url(r'^data_analysis', views.data_analysis, name="data_analysis"),
+    url(r'^update_current_items', views.update_current_items, name="update_current_items")
 )
