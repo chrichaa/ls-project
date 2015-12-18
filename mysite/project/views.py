@@ -246,7 +246,7 @@ def scrape_data(request):
                 print "Search already in list! Moved to front"
             tmp_user.save()
         except Users.DoesNotExist:
-            print 'User Doesnt Exist'
+            return render(request, 'project/dashboard.html')
     
         results = {}
         
