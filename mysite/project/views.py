@@ -180,7 +180,7 @@ def get_updated_results(craigslist_search, ebay_search, user_id):
     e_count = 0
     
     for c_item in Craigslist_Item.objects.all().filter(keyword = craigslist_search.keyword, city__in = craigslist_search.near_cities, price__range = (int(craigslist_search.min_price), int(craigslist_search.max_price))):
-        results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price), 'type':'Craigslist'}
+        results['item'+str(c_count)] = {'title':c_item.title, 'url':'http://'+c_item.url, 'price':'$'+str(c_item.price), 'type':'Craigslist'}
         c_count = c_count + 1
     
     for e_item in Ebay_Item.objects.all().filter(keyword = ebay_search.keyword, price__range = (int(ebay_search.min_price), int(ebay_search.max_price))):

@@ -69,7 +69,7 @@ def send_to_database(item_keyword,min_price_keyword,max_price_keyword,dict,num_o
         except Ebay_Item.DoesNotExist:
             i = Ebay_Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = dict[item_key]['time'])
             num_added = num_added + 1
-        num_of_items = num_of_items + 1
+            num_of_items = num_of_items + 1
 
     try:
         e_search = Ebay_Search.objects.get(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword)
