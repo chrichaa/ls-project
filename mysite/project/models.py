@@ -30,7 +30,7 @@ class Ebay_Item(models.Model):
     url          = models.CharField(max_length = 255)
     price        = models.IntegerField()
     key          = models.CharField(max_length = 255)
-    time_created = models.DateTimeField(auto_now_add=True)
+    time_created = models.DateTimeField()
 
 class Craigslist_Item(models.Model):
     title        = models.CharField(max_length = 255)
@@ -39,7 +39,7 @@ class Craigslist_Item(models.Model):
     price        = models.IntegerField()
     key          = models.CharField(max_length = 255)
     city         = models.CharField(max_length = 255)
-    time_created = models.DateTimeField(auto_now_add=True)
+    time_created = models.DateTimeField()
 
 class Job_Queue(models.Model):
     keyword      = models.CharField(max_length = 255)

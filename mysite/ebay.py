@@ -2,6 +2,7 @@ import ebaysdk
 import json
 import re
 import os
+import dateutil.parser
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
@@ -29,11 +30,12 @@ def fetch_results(item,min_price,max_price):
                     title   = key['title']
                     url     = key['viewItemURL']
                     price   = key['sellingStatus']['currentPrice']['value']
+                    time    = dateutil.parser.parse(key['listingInfo']['startTime'])
                     
                     if not price:
                         price = "0"
 
-                    temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'key': item_id.strip()};
+                    temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': item_id.strip()};
                     count = count + 1
                    
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))
@@ -65,7 +67,7 @@ def send_to_database(item_keyword,min_price_keyword,max_price_keyword,dict,num_o
             i = Ebay_Item.objects.get(key = dict[item_key]['key'])
             num_cached = num_cached + 1
         except Ebay_Item.DoesNotExist:
-            i = Ebay_Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = timezone.now())
+            i = Ebay_Item.objects.create(title = dict[item_key]['title'], keyword = item_keyword, url = dict[item_key]['url'], price = int(float(dict[item_key]['price'])), key = dict[item_key]['key'],time_created = dict[item_key]['time'])
             num_added = num_added + 1
         num_of_items = num_of_items + 1
 

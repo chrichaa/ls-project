@@ -1,12 +1,14 @@
-
+from bson import json_util
 from django.shortcuts import render
 from django.http import HttpResponse
 from models import *
+from operator import itemgetter
 
 import cities_dictionary
 import aggregator
 import time
 import json
+import collections
 
 def index(request):
     if request.method == 'POST':
@@ -88,15 +90,15 @@ def data_analysis(request):
 	e_count=0
 
         for c_item in Craig_results:
-                results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'time':'$'+str(c_item.time_created)}
-                c_count = c_count + 1
+            results[str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'time':'$'+str(c_item.time_created)}
+            c_count = c_count + 1
 
         for e_item in Ebay_results:
-            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'time':'$'+str(e_item.time_created)}
+            results[str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'time':'$'+str(e_item.time_created)}
             e_count = e_count + 1
 
         #print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request, 'project/monitordash.html', {"results":results})
+        return render(request, 'project/monitordash.html', {"results":collections.OrderedDict(sorted(results.items()))})
 
     if request.GET['filter'] == "price":
         Ebay_results=Ebay_Item.objects.order_by('-price')[:10]
@@ -115,7 +117,7 @@ def data_analysis(request):
             e_count = e_count + 1
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request,'project/monitordash.html',{"results":results})
+        return render(request,'project/monitordash.html',{"results":collections.OrderedDict(sorted(results.items()))})
 
     if request.GET['filter'] == "queue":
         queue = Job_Queue.objects.all()
@@ -124,10 +126,10 @@ def data_analysis(request):
         q_count = 0
         
         for q_item in queue:
-            results['item'+str(q_count)] = {'keyword':q_item.keyword, 'city':q_item.city, 'max_price':q_item.max_price, 'min_price':q_item.min_price}
+            results[str(q_count)] = {'keyword':q_item.keyword, 'city':q_item.city, 'max_price':q_item.max_price, 'min_price':q_item.min_price}
 
         print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request,'project/monitordash.html',{"results":results})
+        return render(request,'project/monitordash.html',{"results":collections.OrderedDict(sorted(results.items()))})
 
 
     return render(request, 'project/monitordash.html')
@@ -261,17 +263,19 @@ def scrape_data(request):
         c_count = 0
         e_count = 0
     
-        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))):
-            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price), 'type':'Craigslist'}
+        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))).order_by('time_created'):
+            results[str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price), 'time':c_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'Craigslist'}
             c_count = c_count + 1
     
-        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))):
-            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'type':'eBay'}
+        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))).order_by('time_created'):
+            results[str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'time':e_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'eBay'}
             e_count = e_count + 1
-    
-        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
-        return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':results})
+        dict = collections.OrderedDict(sorted(results.items()))
+    
+        print json.dumps(dict, default=json_util.default, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
+        return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':dict})
 
     else:
         return render(request, 'project/dashboard.html')
