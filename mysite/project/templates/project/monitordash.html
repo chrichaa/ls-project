@@ -30,17 +30,28 @@
                             <div class="form-group col-xs-12 col-md-8" style="padding-left: 0px;">
                                 <label for="filter">Filter:</label>
                                 <select class="form-control" id="filter" name="filter">
-					<option value="time">Most Recent</option>
-  					<option value="price">Most Expensive</option>
-				</select>
+                                    <option value="time">Most Recent</option>
+                                    <option value="price">Most Expensive</option>
+                                    <option value="queue">Job Queue</option>
+                                </select>
                             </div>
                             <div style="padding-top: 25px;">
                                 <button type="submit" class="btn btn-primary special" id="searchbutton" name="searchbutton">Filter</button>
                             </div>
                         </fieldset>
                     </form>
+                    </br>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <tr><th>Result</th>
+                            {% for item in results.items %}
+                                <tr>
+                                    <td>{{ item  }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
                 </div>
-            <div class="container"><h2 class="text-center"> {{message}} </h2></div>
         </div>
     </div>
 {% endblock %}
