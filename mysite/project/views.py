@@ -246,7 +246,7 @@ def scrape_data(request):
         except Users.DoesNotExist:
             return render(request, 'project/dashboard.html')
 
-        results = get_results()
+        results = get_results(craigslist_search)
         return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':results})
 
     else:
