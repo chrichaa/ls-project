@@ -117,7 +117,7 @@ def craigslist_scrape(city,keyword_item,min_price,max_price):
                 c_search.result_amount = c_search.result_amount + num_added
         
         except Craigslist_Search.DoesNotExist:
-            c_search = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, result_amount = num_of_items)
+            c_search = Craigslist_Search.objects.create(keyword = keyword_item, city = city_key, near_cities = cities, min_price = min_price, max_price = max_price, result_amount = num_of_items, times_called = 1)
             num_searches_added = num_searches_added + 1
 
         c_search.save()

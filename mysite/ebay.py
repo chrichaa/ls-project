@@ -35,7 +35,7 @@ def fetch_results(item,min_price,max_price):
                     if not price:
                         price = "0"
 
-                    temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': item_id.strip()};
+            temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': item_id.strip()};
                     count = count + 1
                    
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))
@@ -77,7 +77,7 @@ def send_to_database(item_keyword,min_price_keyword,max_price_keyword,dict,num_o
         if num_added >= 1:
             e_search.result_amount = e_search.result_amount + num_added
     except Ebay_Search.DoesNotExist:
-        e_search = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, result_amount = num_of_results)
+        e_search = Ebay_Search.objects.create(keyword = item_keyword, min_price = min_price_keyword, max_price = max_price_keyword, result_amount = num_of_results, times_called = 1)
         num_searches_added = num_searches_added + 1
 
     e_search.save()

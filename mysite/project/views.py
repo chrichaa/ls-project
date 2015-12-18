@@ -9,6 +9,7 @@ import aggregator
 import time
 import json
 import collections
+import operator
 
 def index(request):
     if request.method == 'POST':
@@ -174,22 +175,7 @@ def get_updated_results(craigslist_search, ebay_search, user_id):
     except Users.DoesNotExist:
         print 'User Doesnt Exist'
 
-    results = {}
-    
-    c_count = 0
-    e_count = 0
-    
-    for c_item in Craigslist_Item.objects.all().filter(keyword = craigslist_search.keyword, city__in = craigslist_search.near_cities, price__range = (int(craigslist_search.min_price), int(craigslist_search.max_price))):
-        results['item'+str(c_count)] = {'title':c_item.title, 'url':'http://'+c_item.url, 'price':'$'+str(c_item.price), 'type':'Craigslist'}
-        c_count = c_count + 1
-    
-    for e_item in Ebay_Item.objects.all().filter(keyword = ebay_search.keyword, price__range = (int(ebay_search.min_price), int(ebay_search.max_price))):
-        results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'type':'eBay'}
-        e_count = e_count + 1
-    
-    print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-
-    return results
+    return get_results(craigslist_search)
 
 def scrape_data(request):
     if request.GET['term']:
@@ -219,7 +205,9 @@ def scrape_data(request):
     try:
         print 'Checking Cache'
         craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
+        craigslist_search.times_called = craigslist_search.times_called + 1
         ebay_search       = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price))
+        ebay_search.times_called = ebay_search.times_called + 1
 
     except (Craigslist_Search.MultipleObjectsReturned, Ebay_Search.MultipleObjectsReturned, Craigslist_Search.DoesNotExist, Ebay_Search.DoesNotExist) as e:
         print 'Cache Miss: Scrapping'
@@ -257,25 +245,48 @@ def scrape_data(request):
             tmp_user.save()
         except Users.DoesNotExist:
             return render(request, 'project/dashboard.html')
-    
-        results = {}
-        
-        c_count = 0
-        e_count = 0
-    
-        for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))).order_by('time_created'):
-            results[str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price), 'time':c_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'Craigslist'}
-            c_count = c_count + 1
-    
-        for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))).order_by('time_created'):
-            results[str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'time':e_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'eBay'}
-            e_count = e_count + 1
 
-        dict = collections.OrderedDict(sorted(results.items()))
-    
-        print json.dumps(dict, default=json_util.default, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-
-        return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':dict})
+        results = get_results()
+        return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':results})
 
     else:
         return render(request, 'project/dashboard.html')
+
+
+
+def get_results(craigslist_search):
+    keyword = craigslist_search.keyword
+    min_price = craigslist_search.min_price
+    max_price = craigslist_search.max_price
+    
+    results = {}
+    results1 = []
+    
+    c_count = 0
+    e_count = 0    
+
+    for c_item in Craigslist_Item.objects.all().filter(keyword = keyword, city__in = craigslist_search.near_cities, price__range = (int(min_price), int(max_price))).order_by('-time_created'):
+        #results[str(c_count)] = {'title':str(c_count)+ " " + c_item.title, 'url':'http://'+c_item.url, 'price':'$'+str(c_item.price), 'time':c_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'Craigslist'}
+        results1.append((c_count,c_item.title,'http://'+c_item.url,'$'+str(c_item.price),c_item.time_created.strftime('%Y-%m-%d %H:%M'),'Craigslist'))
+        c_count = c_count + 1
+
+    e_count = c_count + 1    
+
+    for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))).order_by('-time_created'):
+        #results[str(e_count)] = {'title':str(c_count)+ " " + e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'time':e_item.time_created.strftime('%Y-%m-%d %H:%M'), 'type':'eBay'}
+        results1.append((e_count,e_item.title, e_item.url,'$'+str(e_item.price),e_item.time_created.strftime('%Y-%m-%d %H:%M'),'eBay'))
+        e__count = e_count + 1
+
+    results_list = sorted(results1, key=lambda tup: tup[4], reverse=True)     
+
+    count = 0
+
+    for result in results_list:
+        results[count] = {'title':result[1], 'url':result[2], 'price':result[3], 'time':result[4], 'type':result[5]}
+        count = count + 1
+
+    dict1 = collections.OrderedDict(sorted(results.items()))
+
+    print json.dumps(dict1, default=json_util.default, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+
+    return dict1

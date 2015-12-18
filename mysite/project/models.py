@@ -17,12 +17,14 @@ class Craigslist_Search(models.Model):
     min_price     = models.IntegerField()
     max_price     = models.IntegerField()
     result_amount = models.IntegerField()
+    times_called  = models.IntegerField(default = 0)
 
 class Ebay_Search(models.Model):
     keyword       = models.CharField(max_length = 255)
     min_price     = models.IntegerField()
     max_price     = models.IntegerField()
     result_amount = models.IntegerField()
+    times_called  = models.IntegerField(default = 0)
 
 class Ebay_Item(models.Model):
     title        = models.CharField(max_length = 255)
