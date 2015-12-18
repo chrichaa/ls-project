@@ -12,17 +12,17 @@ def index(request):
     if request.method == 'POST':
         success = login_user(request)
         if success:
-            #Create session here?
             print 'User ID: ' + success
            
-            results = get_updated_results(Users.objects.get(user_id = success).craigslist_search[0], Users.objects.get(user_id = success).ebay_search[0], success)
-            
-            response = render(request,'project/dashboard.html',{'user_searches':Users.objects.get(user_id = success).craigslist_search, 'result_list':results})
+            if not Users.objects.get(user_id = success).craigslist_search:
+                response = render(request, 'project/dashboard.html')
+            else:
+                results = get_updated_results(Users.objects.get(user_id = success).craigslist_search[0], Users.objects.get(user_id = success).ebay_search[0], success)
+                response = render(request,'project/dashboard.html',{'user_searches':Users.objects.get(user_id = success).craigslist_search, 'result_list':results})
             response.set_cookie('id',success)
 
             return response
         else:
-            #Someone has to make the HTML to handle incorrect login
             print 'Handle if incorrect login'
             return render(request,'project/index.html', {"message": "The login information entered is incorrect."})
 
@@ -37,7 +37,6 @@ def register(request):
 
             return response
         else:
-            #Someone has to make the HTML to handle incorrect login
             print 'Handle if user is registered already'
             return render(request,'project/register.html', {"message": "This user is registered already."})
 
@@ -46,7 +45,6 @@ def register(request):
 def dashboard(request):
     #Get current user's searches and fetch results from mongo tables
     #Refresh HTML table with results
-
     return render(request, 'project/dashboard.html')
 
 def monitordash(request):
