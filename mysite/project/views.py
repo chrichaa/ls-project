@@ -14,10 +14,13 @@ def index(request):
         if success:
             #Create session here?
             print 'User ID: ' + success
-            
+           
             results = get_updated_results(Users.objects.get(user_id = success).craigslist_search[0], Users.objects.get(user_id = success).ebay_search[0], success)
             
-            return render(request,'project/dashboard.html',{'user_searches':Users.objects.get(user_id = success).craigslist_search, 'result_list':results})
+            response = render(request,'project/dashboard.html',{'user_searches':Users.objects.get(user_id = success).craigslist_search, 'result_list':results})
+            response.set_cookie('id',success)
+
+            return response
         else:
             #Someone has to make the HTML to handle incorrect login
             print 'Handle if incorrect login'
@@ -29,7 +32,10 @@ def register(request):
     if request.method == 'POST':
         success = register_user(request)
         if success:
-            return render(request,'project/dashboard.html')
+            response = render(request,'project/dashboard.html')
+            response.set_cookie('id',success)
+
+            return response
         else:
             #Someone has to make the HTML to handle incorrect login
             print 'Handle if user is registered already'
@@ -122,12 +128,15 @@ def data_analysis(request):
 
 def update_current_items(request):
     request_list = request.GET['searchlist'].split('+')
-
     keyword   = request_list[0]
     city      = request_list[1]
     min_price = request_list[2]
     max_price = request_list[3]
-    user_id   = '5673182bb2b8510735e32d0a'
+    
+    if request.COOKIES.has_key('id'):
+        user_id = request.COOKIES['id']
+    else:
+        user_id = 'None'
 
     craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = min_price, max_price = max_price)
     ebay_search = Ebay_Search.objects.get(keyword = keyword, min_price = min_price, max_price = max_price)
@@ -170,7 +179,7 @@ def get_updated_results(craigslist_search, ebay_search, user_id):
         results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price), 'type':'eBay'}
         e_count = e_count + 1
     
-    #print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
+    print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
     return results
 
@@ -191,7 +200,12 @@ def scrape_data(request):
         min_price = '0'
 
     city = cities_dictionary.get_cities().get(request.GET['citydrop'])
-    key = '5673182bb2b8510735e32d0a'
+    
+    if request.COOKIES.has_key('id'):
+        key = request.COOKIES['id']
+    else:
+        key = 'None'
+
     timed_out = False
 
     try:
