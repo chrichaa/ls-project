@@ -35,7 +35,7 @@ def fetch_results(item,min_price,max_price):
                     if not price:
                         price = "0"
 
-            temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': item_id.strip()};
+                    temp_dictionary[str(count)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': item_id.strip()};
                     count = count + 1
                    
             #print json.dumps(temp_dictionary, sort_keys=True, indent=4, separators=(',', ': '))

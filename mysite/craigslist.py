@@ -5,18 +5,21 @@ import threading
 import json
 import re
 import os
+from threading import Thread
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 import project.cities_dictionary as cities_dictionary
 
+from bson import json_util
+from Queue import Queue
 from lxml import html
 from project.models import *
 from django.utils import timezone
 from time import mktime
 from datetime import datetime
 
-def fetch_results(keyword,city,min_price,max_price):
+def fetch_results(keyword,city,min_price,max_price,q):
     xml = feedparser.parse('http://'+city+'/search/sss?format=rss?&min_price='+min_price+'&max_price='+max_price+'&query='+keyword.replace(' ','%20')+'&sort=rel')
     dict = {}
     index = 0
@@ -49,7 +52,12 @@ def fetch_results(keyword,city,min_price,max_price):
         dict[str(index)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': key.strip()};
         index = index + 1
 	
-    return dict
+#    num_of_items = num_of_items + len(tmp_dict)
+#    dict[str(cities[x])] = tmp_dict
+   
+    #print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, default=json_util.default, separators=(',', ': '))
+    q.put((city,dict))
+    q.task_done()
 
 def get_nearby_cities(city):
     #url = cities_dictionary.get_cities().get(city)
@@ -78,28 +86,51 @@ def craigslist_scrape(city,keyword_item,min_price,max_price):
 
     num_searches_cached = 0
     num_searches_added  = 0
-        
+    
+    q = Queue()
+    threads = []
+
     for x in range(len(cities)):
         try:
             Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price = min_price, max_price = max_price)
-            tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
-            num_of_items = num_of_items + len(tmp_dict)
-            dict[str(cities[x])] = tmp_dict
+            t = Thread(target=fetch_results, args=(keyword_item,cities[x],str(min_price),str(max_price),q))
+            t.start()
+            threads.append(t)
         
         except Craigslist_Search.DoesNotExist:
             try:
                 Craigslist_Search.objects.get(keyword = keyword_item, city = str(cities[x]), min_price__lte = min_price, max_price__gte = max_price)
                 num_searches_cached = num_searches_cached + 1
-                dict[str(cities[x])] = {}
+               
+                q.put((city,{}))
+                q.task_done()
+#                dict[str(cities[x])] = {}
 
             except Craigslist_Search.MultipleObjectsReturned:
-                dict[str(cities[x])] = {}
-            
-            except Craigslist_Search.DoesNotExist:
-                tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
-                num_of_items = num_of_items + len(tmp_dict)
-                dict[str(cities[x])] = tmp_dict
+#                dict[str(cities[x])] = {}
+                q.put((city,{}))
+                q.task_done()
 
+            except Craigslist_Search.DoesNotExist:
+#                tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
+                t = Thread(target=fetch_results, args=(keyword_item,cities[x],str(min_price),str(max_price),q))
+                t.start()
+                threads.append(t)
+#                num_of_items = num_of_items + len(tmp_dict)
+#                dict[str(cities[x])] = tmp_dict
+                       
+    for t in threads:
+        t.join()
+                       
+    for object in iter(q.get, None):
+       if q.empty():
+           break 
+       if not object[1]:
+            dict[str(object[0])] = {}
+       else:
+            dict[str(object[0])] = object[1]
+            num_of_items = num_of_items + len(object[1])
+                           
     for city_key in dict:
         for item_key in dict[city_key]:
             try:

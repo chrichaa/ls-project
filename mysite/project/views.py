@@ -215,6 +215,7 @@ def scrape_data(request):
         artifical_timeout = 0
         while True: 
             try:
+                print 'Waiting for scrape-results'
                 ebay_search       = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price))
                 craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
                 break            
@@ -250,7 +251,7 @@ def scrape_data(request):
         return render(request, 'project/dashboard.html', {'user_searches':tmp_user.craigslist_search,'result_list':results})
 
     else:
-        return render(request, 'project/dashboard.html')
+        return render(request, 'project/dashboard.html', {'message':'No results found!'})
 
 
 
