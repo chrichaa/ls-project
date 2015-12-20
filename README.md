@@ -4,13 +4,13 @@ Large Scale Web Applications Final Project
 
 ## How to Run 
 Run scrapper sever first. Cd into ls-project/mysite and run 
-'''
+```
 python scrapperServer.py &
-'''
+```
 To run server, cd into ls-project/mysite and run
-'''
+```
 python manage.py runserver
-'''
+```
 The index page should be hosted at http://127.0.0.1:8000/project/ 
 
 ## About Project
@@ -37,7 +37,7 @@ Start_scraping will then call craigslist_scrape and ebay_scrape from craigslist.
 Fetch_Results(keyword,city,min_price,max_price,queue) first creates the corresponding city's url and grabs it's RSS feed. An empty dictionary is then created to hold the results. We then iterate through each xml entry (which would be a Craigslist posting) and grab its title, url, price, time of posting, and key. Then we add these variables to the dictionary, with a simple auto-incremented counter as the key. We create a tuple of (city, dictionary) and add it to the queue.'
 
 After we have itterated through the list of cities, and added their corresponding (city,dict) tuples to the queue, we then itterate through the queue, changing it to a dictionary. Schema example:
-  '''
+  ```
         { 
             example_city : {
                 auto_incremented counter : {
@@ -49,7 +49,7 @@ After we have itterated through the list of cities, and added their correspondin
                     }
                 }
         }
-  '''
+  ```
 Now that we have our dictionary, iterate through each city's items. Quickly check to see if the item is already in the database, and if it isn't, then add the item to the database. Once we finish adding a city's items, we add the search to the Craigslist_Search table in the database. craigslist.py is now done, we just return the number of items we found.
 
 After craigslist.py returns, we move on to ebay.py's ebay_scrape. ebay_scrape calls fetch_results, where we make an API call using eBay's SDK. We then return the same as craiglist.py (title,url,price,key) and create a dictionary of the results. We then iterate through the dictionary of results, adding them to the database if it is not already in there. ebay.py then returns its number of results. We are now done with ebay.py
