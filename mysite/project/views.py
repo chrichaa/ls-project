@@ -104,7 +104,7 @@ def dashboard(request):
 
 def scrape_data(request):
     if request.GET['term']:
-        keyword = unicode(str.lower(str(request.GET['term'])))
+        keyword = str.lower(str(request.GET['term']))
     else:
         keyword = 'None'
     
@@ -272,7 +272,7 @@ def data_analysis(request):
 
         count = 0
             
-        for result in results_list:
+        for result in results_list[:10]:
             results[count] = {'title':result[1], 'url':result[2], 'price':result[3], 'time':result[4], 'type':result[5]}
             count = count + 1
 
@@ -296,7 +296,7 @@ def data_analysis(request):
         count = 0
         
         for result in results_list:
-            results[count] = {'keyword':result[1], 'city':result[2], 'max_price':result[2], 'min_price':result[3]}
+            results[count] = {'keyword':result[1], 'city':result[2], 'max_price':result[3], 'min_price':result[4]}
             count = count + 1
 
         dict1 = collections.OrderedDict(sorted(results.items()))
@@ -314,10 +314,10 @@ def data_analysis(request):
 '''
 def update_current_items(request):
     request_list = request.GET['searchlist'].split('+')
-    keyword   = request_list[0]
-    city      = request_list[1]
-    min_price = request_list[2]
-    max_price = request_list[3]
+    keyword   = str(request_list[0])
+    city      = str(request_list[1])
+    min_price = int(request_list[2])
+    max_price = int(request_list[3])
     
     if request.COOKIES.has_key('id'):
         user_id = request.COOKIES['id']
