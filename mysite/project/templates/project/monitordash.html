@@ -24,14 +24,16 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <div>
-                    <h1>View most useful data</h1>
+                    {% if message %}
+                        <h1>{{message}}</h1>
+                    {% endif %}
                     <form action="data_analysis" method="GET">
                         <fieldset
                             <div class="form-group col-xs-12 col-md-8" style="padding-left: 0px;">
                                 <label for="filter">Filter:</label>
                                 <select class="form-control" id="filter" name="filter">
-                                    <option value="time">Most Recent</option>
-                                    <option value="price">Most Expensive</option>
+                                    <option value="popular">Most Popular Searches</option>
+                                    <option value="price">Most Expensive Searches</option>
                                     <option value="queue">Job Queue</option>
                                 </select>
                             </div>
