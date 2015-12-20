@@ -52,26 +52,11 @@ def fetch_results(keyword,city,min_price,max_price,q):
         dict[str(index)] = {'title': title.strip(), 'url': url.strip(), 'price' : price.strip(), 'time' : time, 'key': key.strip()};
         index = index + 1
 	
-#    num_of_items = num_of_items + len(tmp_dict)
-#    dict[str(cities[x])] = tmp_dict
-   
-    #print json.dumps(dict, ensure_ascii=False, sort_keys=True, indent=4, default=json_util.default, separators=(',', ': '))
     q.put((city,dict))
     q.task_done()
 
 def get_nearby_cities(city):
-    #url = cities_dictionary.get_cities().get(city)
-    close_cities = cities_dictionary.get_close_cities()[city]
-
-    #page = requests.get('http://'+url)
-    #tree = html.fromstring(page.text)
-
-    #cities = [url]
-    
-    #for link in tree.xpath('//*[@id="rightbar"]/ul/li[1]/ul//a'):
-        #cities.append(link.attrib['href'].replace('//','').replace('/',''))
-
-    return close_cities
+    return cities_dictionary.get_close_cities()[city]
 
 def craigslist_scrape(city,keyword_item,min_price,max_price):
     dict = {}
@@ -104,20 +89,15 @@ def craigslist_scrape(city,keyword_item,min_price,max_price):
                
                 q.put((city,{}))
                 q.task_done()
-#                dict[str(cities[x])] = {}
 
             except Craigslist_Search.MultipleObjectsReturned:
-#                dict[str(cities[x])] = {}
                 q.put((city,{}))
                 q.task_done()
 
             except Craigslist_Search.DoesNotExist:
-#                tmp_dict = fetch_results(keyword_item,cities[x],str(min_price),str(max_price))
                 t = Thread(target=fetch_results, args=(keyword_item,cities[x],str(min_price),str(max_price),q))
                 t.start()
                 threads.append(t)
-#                num_of_items = num_of_items + len(tmp_dict)
-#                dict[str(cities[x])] = tmp_dict
                        
     for t in threads:
         t.join()
