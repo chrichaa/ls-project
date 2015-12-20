@@ -4,7 +4,7 @@ import lxml
 import json
     
 def fetch_results(user,item,min_price,max_price):
-    amazon = bottlenose.Amazon('AKIAIYZI6XMXPN2RSYCQ', 'VdAocVvKYX3c1LyI4kTaJGLjYeweWy5pUdkSONAV', 'largescalepro-20')
+    amazon = bottlenose.Amazon('', '', '')
     response = amazon.ItemSearch(Title=item, MaximumPrice = max_price+'00', MinimumPrice = min_price+'00', SearchIndex="Electronics", ItemPage="5")
     
     print json.dumps(xmltodict.parse(response), sort_keys=True, indent=4, separators=(',', ': '))
