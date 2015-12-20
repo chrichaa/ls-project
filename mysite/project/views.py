@@ -34,7 +34,6 @@ def index(request):
 
             return response
         else:
-            print 'Handle if incorrect login'
             return render(request,'project/index.html', {"message": "The login information entered is incorrect."})
 
     return render(request, 'project/index.html')
@@ -145,8 +144,8 @@ def scrape_data(request):
         while True:
             try:
                 print 'Waiting for scrape-results'
-                ebay_search       = Ebay_Search.objects.get(keyword = keyword, min_price = int(min_price), max_price = int(max_price))
-                craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = int(min_price), max_price = int(max_price))
+                ebay_search       = Ebay_Search.objects.get(keyword = str(keyword), min_price = int(min_price), max_price = int(max_price))
+                craigslist_search = Craigslist_Search.objects.get(keyword = str(keyword), city = city, min_price = int(min_price), max_price = int(max_price))
                 break
             except (Ebay_Search.DoesNotExist, Craigslist_Search.DoesNotExist) as e:
                 if(artifical_timeout == 30):
@@ -200,11 +199,11 @@ def get_results(craigslist_search):
         results1.append((c_count,c_item.title,'http://'+c_item.url,'$'+str(c_item.price),c_item.time_created.strftime('%Y-%m-%d %H:%M'),'Craigslist'))
         c_count = c_count + 1
     
-    e_count = c_count + 1
+    e_count = c_count
 
     for e_item in Ebay_Item.objects.all().filter(keyword = keyword, price__range = (int(min_price), int(max_price))).order_by('-time_created'):
         results1.append((e_count,e_item.title, e_item.url,'$'+str(e_item.price),e_item.time_created.strftime('%Y-%m-%d %H:%M'),'eBay'))
-        e__count = e_count + 1
+        e_count = e_count + 1
 
     results_list = sorted(results1, key=lambda tup: tup[4], reverse=True)
 
@@ -304,115 +303,6 @@ def data_analysis(request):
         
         print json.dumps(dict1, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
         return render(request,'project/monitordash.html',{'message':'Job Queue',"results":dict1})
-
-    return render(request, 'project/monitordash.html')
-
-
-'''
-|||||||||||||||||||| Helper Fuctions ||||||||||||||||||||
-    Helper Functions that update results
-|||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-'''
-def update_current_items(request):
-    request_list = request.GET['searchlist'].split('+')
-    keyword   = request_list[0]
-    city      = request_list[1]
-    min_price = request_list[2]
-    max_price = request_list[3]
-    
-    if request.COOKIES.has_key('id'):
-        user_id = request.COOKIES['id']
-    else:
-        user_id = 'None'
-
-    craigslist_search = Craigslist_Search.objects.get(keyword = keyword, city = city, min_price = min_price, max_price = max_price)
-    ebay_search = Ebay_Search.objects.get(keyword = keyword, min_price = min_price, max_price = max_price)
-
-    results = get_updated_results(craigslist_search, ebay_search, user_id)
-
-    return render(request, 'project/dashboard.html', {'user_searches':Users.objects.get(user_id = user_id).craigslist_search, 'result_list':results})
-
-def get_updated_results(craigslist_search, ebay_search, user_id):
-    try:
-        tmp_user = Users.objects.get(user_id = user_id)
-        print 'Found User'
-        if craigslist_search not in tmp_user.craigslist_search:
-            tmp_user.craigslist_search.insert(0,craigslist_search)
-            print "Added Craigslist_Search to: " + tmp_user.email
-        else:
-            tmp_user.craigslist_search.insert(0, tmp_user.craigslist_search.pop(tmp_user.craigslist_search.index(craigslist_search)))
-            print "Search already in list! Moved to front"
-
-        if ebay_search not in tmp_user.ebay_search:
-            tmp_user.ebay_search.insert(0,ebay_search)
-            print "Added Ebay_Search to: " + tmp_user.email
-        else:
-            tmp_user.ebay_search.insert(0, tmp_user.ebay_search.pop(tmp_user.ebay_search.index(ebay_search)))
-            print "Search already in list! Moved to front"
-        tmp_user.save()
-    except Users.DoesNotExist:
-        print 'User Doesnt Exist'
-
-'''
-|||||||||||||||||||| monitordash.html ||||||||||||||||||||
-        Call data_analysis when hit submit
-        Will then query the database and return results
-|||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-'''
-def monitordash(request):
-    return render(request, 'project/monitordash.html')
-
-def data_analysis(request):
-    if request.GET['filter'] == "time":
-    	Ebay_results=Ebay_Item.objects.order_by('-time_created')[:10]
-    	Craig_results=Craigslist_Item.objects.order_by('-time_created')[:10]
-        results= {}
-	
-	c_count=0
-	e_count=0
-
-        for c_item in Craig_results:
-            results[str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'time':'$'+str(c_item.time_created)}
-            c_count = c_count + 1
-
-        for e_item in Ebay_results:
-            results[str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'time':'$'+str(e_item.time_created)}
-            e_count = e_count + 1
-
-        #print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request, 'project/monitordash.html', {"results":collections.OrderedDict(sorted(results.items()))})
-
-    if request.GET['filter'] == "price":
-        Ebay_results=Ebay_Item.objects.order_by('-price')[:10]
-        Craig_results=Craigslist_Item.objects.order_by('-price')[:10]
-        results= {}
-
-        c_count=0
-        e_count=0
-
-        for c_item in Craig_results:
-            results['item'+str(c_count)] = {'title':c_item.title, 'url':c_item.url, 'price':'$'+str(c_item.price)}
-            c_count = c_count + 1
-
-        for e_item in Ebay_results:
-            results['item'+str(e_count)] = {'title':e_item.title, 'url':e_item.url, 'price':'$'+str(e_item.price)}
-            e_count = e_count + 1
-
-        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request,'project/monitordash.html',{"results":collections.OrderedDict(sorted(results.items()))})
-
-    if request.GET['filter'] == "queue":
-        queue = Job_Queue.objects.all()
-        results = {}
-
-        q_count = 0
-        
-        for q_item in queue:
-            results[str(q_count)] = {'keyword':q_item.keyword, 'city':q_item.city, 'max_price':q_item.max_price, 'min_price':q_item.min_price}
-
-        print json.dumps(results, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-        return render(request,'project/monitordash.html',{"results":collections.OrderedDict(sorted(results.items()))})
-
 
     return render(request, 'project/monitordash.html')
 

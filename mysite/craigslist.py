@@ -36,7 +36,7 @@ def fetch_results(keyword,city,min_price,max_price,q):
         
         if '$' in title:
             split_title = title.split(' ')
-            for x in range(len(split_title)-1):
+            for x in range(len(split_title)-1, -1, -1):
                 if '$' in split_title[x]:
                     price = re.sub("[^0-9]", "", split_title[x].replace('$',' '))
                     split_title.remove(split_title[x])
