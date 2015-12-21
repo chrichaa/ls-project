@@ -7,7 +7,7 @@ If running for the first time, sync the database with the django models. Cd to l
 ```
 python manage.py syncdb
 ```
-Run scrapper sever first. Cd into ls-project/mysite and run 
+Run scrapper server first. Cd into ls-project/mysite and run 
 ```
 python scrapperServer.py &
 ```
@@ -22,8 +22,8 @@ Project is an online scrapper for eBay and Craigslist data.
 Just type in the keyword for an item you would like to search, a city, and a corresponding max and min price, and it will search eBay and Craigslist for the most up to date listings. 
 
 ## How it works
-When a user searches for an item, scrape_data is called in views.py. We get the keyword, max_price, min_price, city, and user_id the user searched for from the request. We then check a could conditions. 
-  1. We first check if the search already exists in the database, becuase if it does, then there's no reason for us to waste time and scrape data. 
+When a user searches for an item, scrape_data is called in views.py. We get the keyword, max_price, min_price, city, and user_id the user searched for from the request. We then check a couple conditions. 
+  1. We first check if the search already exists in the database, because if it does, then there's no reason for us to waste time and scrape data. 
   2. If it does not exist, we call aggregator.scrape_data(), and being scraping for data. 
 
 Aggregator.py is called with a keyword,max_price,min_price, and city. It is then given a timestamp of 0, encoded into JSON, and sent to the scrapperServer. ScrapperServer.py is always running in the background doing two things: listening for requests and keeping track of the job_queue. After aggregator.py sends its JSON object, scrapperServer will pick it up and add it to the job_queue. 
@@ -40,7 +40,7 @@ Start_scraping will then call craigslist_scrape and ebay_scrape from craigslist.
 
 Fetch_Results(keyword,city,min_price,max_price,queue) first creates the corresponding city's url and grabs it's RSS feed. An empty dictionary is then created to hold the results. We then iterate through each xml entry (which would be a Craigslist posting) and grab its title, url, price, time of posting, and key. Then we add these variables to the dictionary, with a simple auto-incremented counter as the key. We create a tuple of (city, dictionary) and add it to the queue.'
 
-After we have itterated through the list of cities, and added their corresponding (city,dict) tuples to the queue, we then itterate through the queue, changing it to a dictionary. Schema example:
+After we have iterated through the list of cities, and added their corresponding (city,dict) tuples to the queue, we then iterate through the queue, changing it to a dictionary. Schema example:
   ```
         { 
             example_city : {
