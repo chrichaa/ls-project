@@ -3,6 +3,10 @@ Large Scale Web Applications Final Project
    
 
 ## How to Run 
+If running for the first time, sync the database with the django models. Cd to ls-project/mysite and run:
+```
+python manage.py syncdb
+```
 Run scrapper sever first. Cd into ls-project/mysite and run 
 ```
 python scrapperServer.py &
